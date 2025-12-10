@@ -17,38 +17,37 @@ export const API_ENDPOINTS = {
   },
   // User Profile
   USER_PROFILE: {
-    ME: '/api/v1/userprofile/me',
-    CONTEXT: '/api/v1/userprofile/context',
-    INFO: '/api/v1/userprofile/info',
-    PERMISSIONS: '/api/v1/userprofile/permissions',
-    CUSTOM_CONTEXT: '/api/v1/userprofile/context/custom',
-    CUSTOM_CONTEXT_BY_KEY: (key: string) => `/api/v1/userprofile/context/custom/${key}`,
-    CHECK_PERMISSION: (permission: string) => `/api/v1/userprofile/check/permission/${permission}`,
-    CHECK_ROLE: (role: string) => `/api/v1/userprofile/check/role/${role}`,
+    ME: '/api/v1/user-profile/me',
+    CONTEXT: '/api/v1/user-profile/context',
+    INFO: '/api/v1/user-profile/info',
+    PERMISSIONS: '/api/v1/user-profile/permissions',
+    CUSTOM_CONTEXT: '/api/v1/user-profile/context/custom',
+    CUSTOM_CONTEXT_BY_KEY: (key: string) => `/api/v1/user-profile/context/custom/${key}`,
+    CHECK_PERMISSION: (permission: string) => `/api/v1/user-profile/check/permission/${permission}`,
+    CHECK_ROLE: (role: string) => `/api/v1/user-profile/check/role/${role}`,
   },
   // Authorization - Roles
   ROLES: {
-    LIST: '/api/v1/authorization/roles',
-    BY_ID: (id: string) => `/api/v1/authorization/roles/${id}`,
-    CREATE: '/api/v1/authorization/roles',
-    UPDATE: (id: string) => `/api/v1/authorization/roles/${id}`,
-    DELETE: (id: string) => `/api/v1/authorization/roles/${id}`,
-    ASSIGN_PERMISSION: (roleId: string, permissionId: string) => 
-      `/api/v1/authorization/roles/${roleId}/permissions/${permissionId}`,
-    REMOVE_PERMISSION: (roleId: string, permissionId: string) => 
-      `/api/v1/authorization/roles/${roleId}/permissions/${permissionId}`,
+    LIST: '/api/v1/role-management',
+    BY_ID: (id: string) => `/api/v1/role-management/${id}`,
+    CREATE: '/api/v1/role-management',
+    UPDATE: (id: string) => `/api/v1/role-management/${id}`,
+    DELETE: (id: string) => `/api/v1/role-management/${id}`,
+    GRANT_PERMISSIONS: (roleId: string) => `/api/v1/role-management/${roleId}/grant-permissions`,
   },
   // Authorization - Permissions
   PERMISSIONS: {
-    LIST: '/api/v1/authorization/permissions',
-    BY_ID: (id: string) => `/api/v1/authorization/permissions/${id}`,
-    CREATE: '/api/v1/authorization/permissions',
-    DELETE: (id: string) => `/api/v1/authorization/permissions/${id}`,
+    LIST: '/api/v1/permission-management',
+    LIST_GROUPED: '/api/v1/permission-management/grouped-by-resource',
+    BY_ID: (id: string) => `/api/v1/permission-management/${id}`,
+    CREATE: '/api/v1/permission-management',
+    DELETE: (id: string) => `/api/v1/permission-management/${id}`,
   },
   // Authorization - User Roles
   USER_ROLES: {
     GET_ROLES: (userId: string) => `/api/v1/authorization/users/${userId}/roles`,
     GET_PERMISSIONS: (userId: string) => `/api/v1/authorization/users/${userId}/permissions`,
+    ASSIGN_ROLES: (userId: string) => `/api/v1/user-management/${userId}/assign-roles`,
     ASSIGN_ROLE: (userId: string, roleId: string) => 
       `/api/v1/authorization/users/${userId}/roles/${roleId}`,
     REMOVE_ROLE: (userId: string, roleId: string) => 
@@ -56,11 +55,12 @@ export const API_ENDPOINTS = {
   },
   // Authorization - Policies (PBAC)
   POLICIES: {
-    LIST: '/api/v1/authorization/policies',
-    BY_ID: (id: string) => `/api/v1/authorization/policies/${id}`,
-    CREATE: '/api/v1/authorization/policies',
-    UPDATE: (id: string) => `/api/v1/authorization/policies/${id}`,
-    DELETE: (id: string) => `/api/v1/authorization/policies/${id}`,
+    LIST: '/api/v1/policy-management',
+    BY_ID: (id: string) => `/api/v1/policy-management/${id}`,
+    CREATE: '/api/v1/policy-management',
+    UPDATE: (id: string) => `/api/v1/policy-management/${id}`,
+    DELETE: (id: string) => `/api/v1/policy-management/${id}`,
+    TOGGLE_STATUS: (id: string) => `/api/v1/policy-management/${id}/toggle-status`,
     EVALUATE: '/api/v1/authorization/evaluate',
   },
   // Authorization Check
@@ -69,12 +69,12 @@ export const API_ENDPOINTS = {
   },
   // User Management
   USERS: {
-    LIST: '/api/v1/users',
-    BY_ID: (id: string) => `/api/v1/users/${id}`,
-    CREATE: '/api/v1/users',
-    UPDATE: (id: string) => `/api/v1/users/${id}`,
-    DELETE: (id: string) => `/api/v1/users/${id}`,
-    TOGGLE_STATUS: (id: string) => `/api/v1/users/${id}/toggle-status`,
+    LIST: '/api/v1/user-management',
+    BY_ID: (id: string) => `/api/v1/user-management/${id}`,
+    CREATE: '/api/v1/user-management',
+    UPDATE: (id: string) => `/api/v1/user-management/${id}`,
+    DELETE: (id: string) => `/api/v1/user-management/${id}`,
+    TOGGLE_STATUS: (id: string) => `/api/v1/user-management/${id}/toggle-status`,
   },
   // Health & Monitoring
   HEALTH: '/health',

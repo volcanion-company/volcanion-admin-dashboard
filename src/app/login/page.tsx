@@ -70,7 +70,7 @@ export default function LoginPage() {
       // Fetch user profile
       try {
         const profileResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/userprofile/me`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user-profile/me`,
           {
             headers: {
               Authorization: `Bearer ${response.accessToken}`,
@@ -80,6 +80,7 @@ export default function LoginPage() {
         
         if (profileResponse.ok) {
           const profile = await profileResponse.json();
+          console.log('Fetched profile:', profile);
           dispatch(setUser(profile));
         }
       } catch (profileError) {

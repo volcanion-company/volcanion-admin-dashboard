@@ -86,6 +86,8 @@ export default function DataTable<T extends Record<string, any>>({
     sortable: col.sortable !== false,
     filterable: col.filterable !== false,
     hideable: col.hideable !== false,
+    align: col.align,
+    headerAlign: col.headerAlign,
     renderCell: col.renderCell
       ? (params) => col.renderCell!({ row: params.row as T, value: params.value })
       : undefined,
@@ -121,6 +123,10 @@ export default function DataTable<T extends Record<string, any>>({
         autoHeight={autoHeight}
         sx={{
           border: 'none',
+          '& .MuiDataGrid-cell': {
+            display: 'flex',
+            alignItems: 'center',
+          },
           '& .MuiDataGrid-cell:focus': {
             outline: 'none',
           },

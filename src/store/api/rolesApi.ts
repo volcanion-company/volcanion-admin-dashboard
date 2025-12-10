@@ -1,33 +1,33 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_CONFIG, API_ENDPOINTS } from '@/lib/constants';
-import { getAccessToken } from '@/utils/cookie';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { baseQueryWithReauth } from '@/store/baseQuery';
 import {
   Role,
   CreateRoleRequest,
   UpdateRoleRequest,
   ApiResponse,
   PaginatedResponse,
+  PaginatedRoleResponse,
 } from '@/types';
 
 export const rolesApi = createApi({
   reducerPath: 'rolesApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAccessToken();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Roles', 'Role'],
   endpoints: (builder) => ({
-    // GET /api/v1/authorization/roles - Get all roles
-    getAllRoles: builder.query<ApiResponse<Role[]>, { includeInactive?: boolean }>({
+    // GET /api/v1/role-management - Get all roles with pagination
+    getAllRoles: builder.query<
+      PaginatedRoleResponse,
+      { page?: number; pageSize?: number; includeInactive?: boolean; searchTerm?: string }
+    >({
       query: (params) => ({
         url: API_ENDPOINTS.ROLES.LIST,
-        params,
+        params: {
+          Page: params.page || 1,
+          PageSize: params.pageSize || 10,
+          IncludeInactive: params.includeInactive ?? false,
+          SearchTerm: params.searchTerm || undefined,
+        },
       }),
       providesTags: ['Roles'],
     }),
@@ -62,37 +62,23 @@ export const rolesApi = createApi({
     }),
 
     // DELETE /api/v1/authorization/roles/:id - Delete role
-    deleteRole: builder.mutation<void, string>({
-      query: (id) => ({
-        url: API_ENDPOINTS.ROLES.DELETE(id),
+  deleteRole: builder.mutation<void, string>({
+      query: (roleId) => ({
+        url: `${API_ENDPOINTS.ROLES.DELETE}/${roleId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Roles'],
     }),
 
-    // POST /api/v1/authorization/roles/:roleId/permissions/:permissionId - Assign permission to role
-    assignPermissionToRole: builder.mutation<
-      void,
-      { roleId: string; permissionId: string }
+    // PUT /api/v1/role-management/:roleId/grant-permissions - Grant permissions to role
+    grantPermissionsToRole: builder.mutation<
+      ApiResponse<Role>,
+      { roleId: string; permissionIds: string[] }
     >({
-      query: ({ roleId, permissionId }) => ({
-        url: API_ENDPOINTS.ROLES.ASSIGN_PERMISSION(roleId, permissionId),
-        method: 'POST',
-      }),
-      invalidatesTags: (result, error, { roleId }) => [
-        'Roles',
-        { type: 'Role', id: roleId },
-      ],
-    }),
-
-    // DELETE /api/v1/authorization/roles/:roleId/permissions/:permissionId - Remove permission from role
-    removePermissionFromRole: builder.mutation<
-      void,
-      { roleId: string; permissionId: string }
-    >({
-      query: ({ roleId, permissionId }) => ({
-        url: API_ENDPOINTS.ROLES.REMOVE_PERMISSION(roleId, permissionId),
-        method: 'DELETE',
+      query: ({ roleId, permissionIds }) => ({
+        url: API_ENDPOINTS.ROLES.GRANT_PERMISSIONS(roleId),
+        method: 'PUT',
+        body: { permissionIds },
       }),
       invalidatesTags: (result, error, { roleId }) => [
         'Roles',
@@ -108,6 +94,5 @@ export const {
   useCreateRoleMutation,
   useUpdateRoleMutation,
   useDeleteRoleMutation,
-  useAssignPermissionToRoleMutation,
-  useRemovePermissionFromRoleMutation,
+  useGrantPermissionsToRoleMutation,
 } = rolesApi;

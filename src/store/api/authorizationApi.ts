@@ -1,6 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_CONFIG, API_ENDPOINTS } from '@/lib/constants';
-import { getAccessToken } from '@/utils/cookie';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { baseQueryWithReauth } from '@/store/baseQuery';
 import {
   UserRole,
   UserPermission,
@@ -11,17 +11,8 @@ import {
 
 export const authorizationApi = createApi({
   reducerPath: 'authorizationApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAccessToken();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ['UserRoles', 'UserPermissions', 'Authorization'],
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['Authorization', 'UserRoles', 'RolePermissions'],
   endpoints: (builder) => ({
     // GET /api/v1/authorization/users/:userId/roles - Get user roles
     getUserRoles: builder.query<ApiResponse<UserRole[]>, string>({
@@ -59,6 +50,19 @@ export const authorizationApi = createApi({
       ],
     }),
 
+    // PUT /api/v1/user-management/:userId/assign-roles - Batch assign roles to user
+    assignRolesToUser: builder.mutation<ApiResponse<any>, { userId: string; roleIds: string[] }>({
+      query: ({ userId, roleIds }) => ({
+        url: API_ENDPOINTS.USER_ROLES.ASSIGN_ROLES(userId),
+        method: 'PUT',
+        body: { roleIds },
+      }),
+      invalidatesTags: (result, error, { userId }) => [
+        { type: 'UserRoles', id: userId },
+        { type: 'UserPermissions', id: userId },
+      ],
+    }),
+
     // POST /api/v1/authorization/check - Check authorization
     checkAuthorization: builder.mutation<
       ApiResponse<CheckAuthorizationResponse>,
@@ -78,5 +82,6 @@ export const {
   useGetUserPermissionsQuery,
   useAssignRoleToUserMutation,
   useRemoveRoleFromUserMutation,
+  useAssignRolesToUserMutation,
   useCheckAuthorizationMutation,
 } = authorizationApi;

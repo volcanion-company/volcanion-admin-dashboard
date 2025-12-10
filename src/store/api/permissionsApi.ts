@@ -1,29 +1,33 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_CONFIG, API_ENDPOINTS } from '@/lib/constants';
-import { getAccessToken } from '@/utils/cookie';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { baseQueryWithReauth } from '@/store/baseQuery';
 import {
   Permission,
   CreatePermissionRequest,
   ApiResponse,
+  PaginatedPermissionResponse,
+  GroupedPermissionsResponse,
+  PaginatedGroupedPermissionsResponse,
 } from '@/types';
 
 export const permissionsApi = createApi({
   reducerPath: 'permissionsApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAccessToken();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Permissions', 'Permission'],
   endpoints: (builder) => ({
-    // GET /api/v1/authorization/permissions - Get all permissions
-    getAllPermissions: builder.query<ApiResponse<Permission[]>, void>({
-      query: () => API_ENDPOINTS.PERMISSIONS.LIST,
+    // GET /api/v1/permission-management - Get all permissions with pagination (grouped by resource)
+    getAllPermissions: builder.query<
+      PaginatedGroupedPermissionsResponse,
+      { page?: number; pageSize?: number; searchTerm?: string } | void
+    >({
+      query: (params) => ({
+        url: API_ENDPOINTS.PERMISSIONS.LIST,
+        params: params ? {
+          Page: params.page || 1,
+          PageSize: params.pageSize || 10,
+          SearchTerm: params.searchTerm || undefined,
+        } : undefined,
+      }),
       providesTags: ['Permissions'],
     }),
 
@@ -46,13 +50,19 @@ export const permissionsApi = createApi({
       invalidatesTags: ['Permissions'],
     }),
 
-    // DELETE /api/v1/authorization/permissions/:id - Delete permission
+    // DELETE /api/v1/permission-management/:id - Delete permission
     deletePermission: builder.mutation<void, string>({
-      query: (id) => ({
-        url: API_ENDPOINTS.PERMISSIONS.DELETE(id),
+      query: (permissionId) => ({
+        url: `${API_ENDPOINTS.PERMISSIONS.DELETE}/${permissionId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Permissions'],
+    }),
+
+    // GET /api/v1/permission-management/grouped - Get all permissions grouped by resource
+    getGroupedPermissions: builder.query<GroupedPermissionsResponse, void>({
+      query: () => API_ENDPOINTS.PERMISSIONS.LIST_GROUPED,
+      providesTags: ['Permissions'],
     }),
   }),
 });
@@ -62,4 +72,5 @@ export const {
   useGetPermissionByIdQuery,
   useCreatePermissionMutation,
   useDeletePermissionMutation,
+  useGetGroupedPermissionsQuery,
 } = permissionsApi;

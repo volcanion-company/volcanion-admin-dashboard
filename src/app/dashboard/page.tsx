@@ -72,19 +72,19 @@ export default function DashboardPage() {
     },
     {
       title: 'Total Roles',
-      value: rolesData?.data?.length || 0,
+      value: rolesData?.totalCount || 0,
       icon: <SecurityIcon sx={{ color: 'white' }} />,
       color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     },
     {
       title: 'Total Permissions',
-      value: permissionsData?.data?.length || 0,
+      value: permissionsData?.totalCount || 0,
       icon: <VpnKeyIcon sx={{ color: 'white' }} />,
       color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     },
     {
       title: 'Total Policies',
-      value: policiesData?.data?.length || 0,
+      value: policiesData?.policies?.length || 0,
       icon: <PolicyIcon sx={{ color: 'white' }} />,
       color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     },
@@ -94,7 +94,7 @@ export default function DashboardPage() {
     <Box>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>
-          Welcome back, {user?.firstName || 'User'}! 👋
+          Welcome back, {user?.firstName + ' ' + user?.lastName || 'User'}! 👋
         </Typography>
         <Typography variant="body1" color="text.secondary">
           Here&apos;s what&apos;s happening with your admin dashboard today.
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                   }}
                 >
                   <Typography variant="body2" fontWeight={500}>
-                    {role.name}
+                    {role?.roleName}
                   </Typography>
                 </Box>
               ))}

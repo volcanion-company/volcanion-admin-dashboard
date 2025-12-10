@@ -40,34 +40,34 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Tổng quan',
     path: ROUTES.DASHBOARD,
     icon: <DashboardIcon />,
   },
   {
-    title: 'Users',
+    title: 'Quản lý người dùng',
     path: ROUTES.USERS,
     icon: <PeopleIcon />,
     permissions: [PERMISSIONS.USERS_READ],
   },
   {
-    title: 'Authorization',
+    title: 'Phân quyền',
     icon: <SecurityIcon />,
     children: [
       {
-        title: 'Roles',
+        title: 'Vai trò',
         path: ROUTES.ROLES,
         icon: <VpnKeyIcon />,
         permissions: [PERMISSIONS.ROLES_READ],
       },
       {
-        title: 'Permissions',
+        title: 'Quyền hạn',
         path: ROUTES.PERMISSIONS,
         icon: <VpnKeyIcon />,
         permissions: [PERMISSIONS.PERMISSIONS_READ],
       },
       {
-        title: 'Policies',
+        title: 'Chính sách',
         path: ROUTES.POLICIES,
         icon: <PolicyIcon />,
         permissions: [PERMISSIONS.POLICIES_READ],
@@ -75,7 +75,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: 'Settings',
+    title: 'Cài đặt',
     path: ROUTES.SETTINGS,
     icon: <SettingsIcon />,
   },
@@ -84,10 +84,20 @@ const menuItems: MenuItem[] = [
 function SidebarMenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [open, setOpen] = React.useState(false);
+  
+  // Check if any child is active
+  const isChildActive = item.children?.some(child => child.path === pathname) || false;
+  const [open, setOpen] = React.useState(isChildActive);
 
   const hasChildren = item.children && item.children.length > 0;
   const isActive = item.path === pathname;
+
+  // Auto-open if child is active
+  React.useEffect(() => {
+    if (isChildActive) {
+      setOpen(true);
+    }
+  }, [isChildActive]);
 
   const handleClick = () => {
     if (hasChildren) {
@@ -97,7 +107,7 @@ function SidebarMenuItem({ item, level = 0 }: { item: MenuItem; level?: number }
     }
   };
 
-  const menuContent = (
+  const renderMenuItem = () => (
     <>
       <ListItemButton
         onClick={handleClick}
@@ -136,12 +146,12 @@ function SidebarMenuItem({ item, level = 0 }: { item: MenuItem; level?: number }
   if (item.permissions || item.roles) {
     return (
       <PermissionGuard permissions={item.permissions} roles={item.roles}>
-        <ListItem disablePadding>{menuContent}</ListItem>
+        {renderMenuItem()}
       </PermissionGuard>
     );
   }
 
-  return <ListItem disablePadding>{menuContent}</ListItem>;
+  return renderMenuItem();
 }
 
 export default function Sidebar() {
