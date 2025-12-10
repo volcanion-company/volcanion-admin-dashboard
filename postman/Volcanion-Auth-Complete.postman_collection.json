@@ -1,0 +1,898 @@
+{
+	"info": {
+		"_postman_id": "volcanion-auth-complete-2025",
+		"name": "Volcanion Auth Service - Complete API",
+		"description": "# Volcanion Auth Service - Complete API Collection\n\n## Overview\nComprehensive authentication and authorization service with RBAC and PBAC support.\n\n## Features\n- ✅ JWT Authentication with Refresh Tokens\n- ✅ User Registration & Login\n- ✅ Role-Based Access Control (RBAC)\n- ✅ Policy-Based Access Control (PBAC)\n- ✅ Permission Management\n- ✅ User Profile Management\n- ✅ Custom Context Management\n\n## Quick Start\n1. Select environment: **Local** or **Production**\n2. Run **POST Register User** to create account\n3. Run **POST Login** to get JWT token (auto-saved)\n4. All authenticated requests will use token automatically\n\n## Version\n1.0.0 - December 2025",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('userId', response.userId);",
+									"    pm.environment.set('userId', response.userId);",
+									"    console.log('User registered successfully:', response.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@volcanion.com\",\n  \"password\": \"Admin@123456\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authentication/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authentication", "register"]
+						},
+						"description": "Register a new user account with email and password."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', response.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', response.refreshToken);",
+									"    pm.collectionVariables.set('userId', response.userId);",
+									"    pm.environment.set('accessToken', response.accessToken);",
+									"    pm.environment.set('refreshToken', response.refreshToken);",
+									"    pm.environment.set('userId', response.userId);",
+									"    console.log('Login successful. Token saved.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@volcanion.com\",\n  \"password\": \"Admin@123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authentication/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authentication", "login"]
+						},
+						"description": "Authenticate user and receive JWT tokens."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authentication/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authentication", "logout"]
+						},
+						"description": "Logout current authenticated user."
+					},
+					"response": []
+				}
+			],
+			"description": "User authentication endpoints including registration, login, and logout."
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "me"]
+						},
+						"description": "Get current user's profile information including ID, email, roles, and permissions."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Context",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/context",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "context"]
+						},
+						"description": "Get user context from HttpContext including user ID, email, roles, and request ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/info",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "info"]
+						},
+						"description": "Get current user information via attribute injection."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/permissions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "permissions"]
+						},
+						"description": "Get all permissions and roles for the current user."
+					},
+					"response": []
+				},
+				{
+					"name": "Set Custom Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"key\": \"department\",\n  \"value\": \"Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/context/custom",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "context", "custom"]
+						},
+						"description": "Store custom key-value data in user context."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Custom Context",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/context/custom/:key",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "context", "custom", ":key"],
+							"variable": [
+								{
+									"key": "key",
+									"value": "department"
+								}
+							]
+						},
+						"description": "Retrieve custom context data by key."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Permission",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/check/permission/:permission",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "check", "permission", ":permission"],
+							"variable": [
+								{
+									"key": "permission",
+									"value": "users:create"
+								}
+							]
+						},
+						"description": "Check if current user has a specific permission."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/userprofile/check/role/:role",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "userprofile", "check", "role", ":role"],
+							"variable": [
+								{
+									"key": "role",
+									"value": "Admin"
+								}
+							]
+						},
+						"description": "Check if current user has a specific role."
+					},
+					"response": []
+				}
+			],
+			"description": "User profile management and context operations."
+		},
+		{
+			"name": "Roles (RBAC)",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles?includeInactive=false",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles"],
+							"query": [
+								{
+									"key": "includeInactive",
+									"value": "false"
+								}
+							]
+						},
+						"description": "Retrieve all roles in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles/:roleId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles", ":roleId"],
+							"variable": [
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								}
+							]
+						},
+						"description": "Get detailed information about a specific role."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('roleId', response.roleId);",
+									"    pm.environment.set('roleId', response.roleId);",
+									"    console.log('Role created:', response.roleId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Manager\",\n  \"description\": \"Team Manager Role\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles"]
+						},
+						"description": "Create a new role in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleId\": \"{{roleId}}\",\n  \"name\": \"Senior Manager\",\n  \"description\": \"Senior Team Manager Role\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles/:roleId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles", ":roleId"],
+							"variable": [
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								}
+							]
+						},
+						"description": "Update an existing role's details."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles/:roleId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles", ":roleId"],
+							"variable": [
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								}
+							]
+						},
+						"description": "Delete a role from the system."
+					},
+					"response": []
+				}
+			],
+			"description": "Role management endpoints for RBAC."
+		},
+		{
+			"name": "Permissions (RBAC)",
+			"item": [
+				{
+					"name": "Get All Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/permissions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "permissions"]
+						},
+						"description": "Retrieve all permissions in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('permissionId', response.permissionId);",
+									"    pm.environment.set('permissionId', response.permissionId);",
+									"    console.log('Permission created:', response.permissionId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"resource\": \"users\",\n  \"action\": \"create\",\n  \"description\": \"Permission to create new users\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/permissions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "permissions"]
+						},
+						"description": "Create a new permission."
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Permission to Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles/:roleId/permissions/:permissionId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles", ":roleId", "permissions", ":permissionId"],
+							"variable": [
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								},
+								{
+									"key": "permissionId",
+									"value": "{{permissionId}}"
+								}
+							]
+						},
+						"description": "Assign a permission to a specific role."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Permission from Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/roles/:roleId/permissions/:permissionId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "roles", ":roleId", "permissions", ":permissionId"],
+							"variable": [
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								},
+								{
+									"key": "permissionId",
+									"value": "{{permissionId}}"
+								}
+							]
+						},
+						"description": "Remove a permission from a specific role."
+					},
+					"response": []
+				}
+			],
+			"description": "Permission management endpoints for RBAC."
+		},
+		{
+			"name": "User Roles",
+			"item": [
+				{
+					"name": "Get User Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/users/:userId/roles",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "users", ":userId", "roles"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get all roles assigned to a specific user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/users/:userId/permissions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "users", ":userId", "permissions"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get all permissions for a specific user (aggregated from their roles)."
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Role to User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/users/:userId/roles/:roleId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "users", ":userId", "roles", ":roleId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								}
+							]
+						},
+						"description": "Assign a role to a specific user."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Role from User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/users/:userId/roles/:roleId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "users", ":userId", "roles", ":roleId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roleId",
+									"value": "{{roleId}}"
+								}
+							]
+						},
+						"description": "Remove a role from a specific user."
+					},
+					"response": []
+				}
+			],
+			"description": "User-role assignment and management."
+		},
+		{
+			"name": "Policies (PBAC)",
+			"item": [
+				{
+					"name": "Get All Policies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/policies?includeInactive=false",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "policies"],
+							"query": [
+								{
+									"key": "includeInactive",
+									"value": "false"
+								}
+							]
+						},
+						"description": "Retrieve all policies in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Policy By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/policies/:policyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "policies", ":policyId"],
+							"variable": [
+								{
+									"key": "policyId",
+									"value": "{{policyId}}"
+								}
+							]
+						},
+						"description": "Get detailed information about a specific policy."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('policyId', response.policyId);",
+									"    pm.environment.set('policyId', response.policyId);",
+									"    console.log('Policy created:', response.policyId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DocumentOwnerPolicy\",\n  \"description\": \"Allow document owners to edit their documents\",\n  \"resource\": \"documents\",\n  \"action\": \"edit\",\n  \"effect\": \"Allow\",\n  \"conditions\": {\n    \"userIdEquals\": \"{{userId}}\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/policies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "policies"]
+						},
+						"description": "Create a new policy for attribute-based access control."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Policy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"policyId\": \"{{policyId}}\",\n  \"name\": \"DocumentOwnerPolicyV2\",\n  \"description\": \"Updated policy for document owners\",\n  \"resource\": \"documents\",\n  \"action\": \"edit\",\n  \"effect\": \"Allow\",\n  \"conditions\": {\n    \"userIdEquals\": \"{{userId}}\",\n    \"departmentEquals\": \"Engineering\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/policies/:policyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "policies", ":policyId"],
+							"variable": [
+								{
+									"key": "policyId",
+									"value": "{{policyId}}"
+								}
+							]
+						},
+						"description": "Update an existing policy."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Policy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/policies/:policyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "policies", ":policyId"],
+							"variable": [
+								{
+									"key": "policyId",
+									"value": "{{policyId}}"
+								}
+							]
+						},
+						"description": "Delete a policy from the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Evaluate Policy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"resource\": \"documents\",\n  \"action\": \"edit\",\n  \"context\": {\n    \"documentOwnerId\": \"{{userId}}\",\n    \"department\": \"Engineering\",\n    \"ipAddress\": \"192.168.1.100\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/evaluate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "evaluate"]
+						},
+						"description": "Evaluate a policy against specific context and conditions."
+					},
+					"response": []
+				}
+			],
+			"description": "Policy management for Policy-Based Access Control (PBAC)."
+		},
+		{
+			"name": "Authorization Check",
+			"item": [
+				{
+					"name": "Check Authorization",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"resource\": \"documents\",\n  \"action\": \"read\",\n  \"context\": {\n    \"department\": \"Engineering\",\n    \"ipAddress\": \"192.168.1.100\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/authorization/check",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "authorization", "check"]
+						},
+						"description": "Check if a user is authorized to perform an action on a resource (combines RBAC and PBAC)."
+					},
+					"response": []
+				}
+			],
+			"description": "Combined authorization check using both RBAC and PBAC."
+		},
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						},
+						"description": "Check the health status of the API and its dependencies."
+					},
+					"response": []
+				},
+				{
+					"name": "Metrics",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/metrics",
+							"host": ["{{baseUrl}}"],
+							"path": ["metrics"]
+						},
+						"description": "Get Prometheus metrics for monitoring."
+					},
+					"response": []
+				}
+			],
+			"description": "Health check and monitoring endpoints."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-refresh token if expired (optional)",
+					"// You can implement token refresh logic here"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test('Status code is not 500', function () {",
+					"    pm.expect(pm.response.code).to.not.equal(500);",
+					"});",
+					"",
+					"// Log response time",
+					"console.log('Response time:', pm.response.responseTime, 'ms');"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "roleId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "permissionId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "policyId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
