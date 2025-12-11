@@ -9,9 +9,22 @@ export interface ApiResponse<T = any> {
 export interface PaginatedResponse<T = any> {
   data: T[];
   total: number;
+  totalCount?: number;
   page: number;
+  currentPage?: number;
   pageSize: number;
   totalPages: number;
+}
+
+// Equipment API Paginated Response (from backend)
+export interface EquipmentPaginatedResponse<T = any> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 export interface ApiError {
@@ -324,3 +337,6 @@ export interface PaginationParams {
   sortOrder?: 'asc' | 'desc';
   filters?: Record<string, any>;
 }
+
+// Export Equipment types
+export * from './equipment.types';
