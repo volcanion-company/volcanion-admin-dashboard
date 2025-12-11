@@ -1,6 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_CONFIG, API_ENDPOINTS } from '@/lib/constants';
-import { getAccessToken } from '@/utils/cookie';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { baseQueryWithReauth } from '@/store/baseQuery';
 import {
   UserProfile,
   UserContext,
@@ -12,17 +12,8 @@ import {
 
 export const userApi = createApi({
   reducerPath: 'userApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAccessToken();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ['UserProfile', 'UserContext', 'UserPermissions'],
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['User', 'UserPermissions', 'UserPolicies', 'UserProfile', 'UserContext'],
   endpoints: (builder) => ({
     // GET /api/v1/userprofile/me - Get current user profile
     getMyProfile: builder.query<UserProfile, void>({

@@ -1,6 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_CONFIG, API_ENDPOINTS } from '@/lib/constants';
-import { getAccessToken } from '@/utils/cookie';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { baseQueryWithReauth } from '@/store/baseQuery';
 import {
   Policy,
   CreatePolicyRequest,
@@ -8,27 +8,27 @@ import {
   EvaluatePolicyRequest,
   EvaluatePolicyResponse,
   ApiResponse,
+  PaginatedPoliciesResponse,
 } from '@/types';
 
 export const policiesApi = createApi({
   reducerPath: 'policiesApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAccessToken();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Policies', 'Policy'],
   endpoints: (builder) => ({
-    // GET /api/v1/authorization/policies - Get all policies
-    getAllPolicies: builder.query<ApiResponse<Policy[]>, { includeInactive?: boolean }>({
+    // GET /api/v1/policy-management - Get all policies with pagination
+    getAllPolicies: builder.query<
+      PaginatedPoliciesResponse,
+      { page?: number; pageSize?: number; searchTerm?: string; includeInactive?: boolean } | void
+    >({
       query: (params) => ({
         url: API_ENDPOINTS.POLICIES.LIST,
-        params,
+        params: params ? {
+          Page: params.page || 1,
+          PageSize: params.pageSize || 10,
+          SearchTerm: params.searchTerm || undefined,
+          IncludeInactive: params.includeInactive,
+        } : undefined,
       }),
       providesTags: ['Policies'],
     }),
@@ -74,6 +74,19 @@ export const policiesApi = createApi({
       invalidatesTags: ['Policies'],
     }),
 
+    // PATCH /api/v1/policy-management/:id/toggle-status - Toggle policy active status
+    togglePolicyStatus: builder.mutation<ApiResponse, { id: string; isActive: boolean }>({
+      query: ({ id, isActive }) => ({
+        url: API_ENDPOINTS.POLICIES.TOGGLE_STATUS(id),
+        method: 'PATCH',
+        body: { isActive },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        'Policies',
+        { type: 'Policy', id },
+      ],
+    }),
+
     // POST /api/v1/authorization/evaluate - Evaluate policy
     evaluatePolicy: builder.mutation<
       ApiResponse<EvaluatePolicyResponse>,
@@ -94,5 +107,6 @@ export const {
   useCreatePolicyMutation,
   useUpdatePolicyMutation,
   useDeletePolicyMutation,
+  useTogglePolicyStatusMutation,
   useEvaluatePolicyMutation,
 } = policiesApi;

@@ -6,7 +6,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { API_CONFIG, API_ENDPOINTS, HTTP_STATUS } from '@/lib/constants';
-import { getAccessToken, getRefreshToken, setAccessToken, clearTokens } from '@/utils/cookie';
+import { getAccessToken, getRefreshToken, setAccessToken, setRefreshToken, clearTokens } from '@/utils/cookie';
 import { isTokenExpired } from '@/utils/jwt';
 
 // Create axios instance
@@ -46,8 +46,19 @@ const refreshAccessToken = async (): Promise<string | null> => {
       { refreshToken }
     );
 
-    const { accessToken } = response.data;
+    const { accessToken, refreshToken: newRefreshToken, expiresAt } = response.data;
+    
+    // Save new tokens
     setAccessToken(accessToken);
+    if (newRefreshToken) {
+      setRefreshToken(newRefreshToken);
+    }
+    
+    // Optionally store expiresAt
+    if (typeof window !== 'undefined' && expiresAt) {
+      localStorage.setItem('tokenExpiresAt', expiresAt);
+    }
+    
     return accessToken;
   } catch (error) {
     console.error('Error refreshing token:', error);

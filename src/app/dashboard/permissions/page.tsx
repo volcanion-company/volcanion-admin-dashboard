@@ -7,216 +7,380 @@ import {
   IconButton,
   Tooltip,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   Grid,
+  InputAdornment,
+  Paper,
+  Chip,
+  Divider,
+  Card,
+  CardContent,
+  Stack,
+  Pagination,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  ExpandMore as ExpandMoreIcon,
+  Folder as FolderIcon,
+} from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
-import { useAppDispatch } from '@/store';
-import { setPageTitle } from '@/store/slices/uiSlice';
 import {
   useGetAllPermissionsQuery,
   useCreatePermissionMutation,
   useDeletePermissionMutation,
 } from '@/store/api/permissionsApi';
-import DataTable from '@/components/common/DataTable';
 import Button from '@/components/common/Button';
-import Modal from '@/components/common/Modal';
-import { DataTableColumn, Permission, CreatePermissionRequest } from '@/types';
+import { CreatePermissionRequest } from '@/types';
 import { formatDateTime } from '@/utils/date';
-import PermissionGuard from '@/components/auth/PermissionGuard';
-import { PERMISSIONS } from '@/lib/constants';
 
 export default function PermissionsPage() {
-  const dispatch = useAppDispatch();
-  const { data, isLoading, refetch } = useGetAllPermissionsQuery();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedPanels, setExpandedPanels] = useState<string[]>([]);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  
+  const { data, isLoading, refetch } = useGetAllPermissionsQuery({
+    page,
+    pageSize,
+    searchTerm: searchTerm || undefined,
+  });
+
   const [createPermission, { isLoading: isCreating }] = useCreatePermissionMutation();
   const [deletePermission] = useDeletePermissionMutation();
 
-  const [openModal, setOpenModal] = useState(false);
-
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    formState: { errors: errorsAdd },
+    reset: resetAdd,
   } = useForm<CreatePermissionRequest>();
 
   useEffect(() => {
-    dispatch(setPageTitle('Permissions Management'));
-  }, [dispatch]);
+    // Auto expand all panels when data loads
+    if (data?.data) {
+      setExpandedPanels(data.data.map(group => group.resource));
+    }
+  }, [data]);
 
   const handleCreate = () => {
-    reset({ resource: '', action: '', description: '' });
-    setOpenModal(true);
+    resetAdd({ resource: '', action: '', description: '' });
+    setOpenAddModal(true);
+  };
+
+  const handleAddPermission = async (formData: CreatePermissionRequest) => {
+    try {
+      await createPermission(formData).unwrap();
+      toast.success('Tạo quyền thành công!');
+      setOpenAddModal(false);
+      resetAdd();
+      refetch();
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || error?.message || 'Tạo quyền thất bại!';
+      toast.error(errorMessage);
+      
+      // Handle validation errors
+      if (error?.data?.errors) {
+        Object.entries(error.data.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            messages.forEach((msg: string) => toast.error(`${field}: ${msg}`));
+          }
+        });
+      }
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this permission?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa quyền này? Hành động này không thể hoàn tác.')) return;
 
     try {
       await deletePermission(id).unwrap();
-      toast.success('Permission deleted successfully');
+      toast.success('Xóa quyền thành công!');
       refetch();
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to delete permission');
+      const errorMessage = error?.data?.message || error?.message || 'Xóa quyền thất bại!';
+      toast.error(errorMessage);
     }
   };
 
-  const onSubmit = async (data: CreatePermissionRequest) => {
-    try {
-      await createPermission(data).unwrap();
-      toast.success('Permission created successfully');
-      setOpenModal(false);
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to create permission');
+  const handleTogglePanel = (resource: string) => {
+    setExpandedPanels(prev => 
+      prev.includes(resource) 
+        ? prev.filter(r => r !== resource)
+        : [...prev, resource]
+    );
+  };
+
+  const handleExpandAll = () => {
+    if (data?.data) {
+      setExpandedPanels(data.data.map(group => group.resource));
     }
   };
 
-  const columns: DataTableColumn<Permission>[] = [
-    {
-      field: 'resource',
-      headerName: 'Resource',
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: 'fullPermission',
-      headerName: 'Full Permission',
-      flex: 1,
-      minWidth: 200,
-      renderCell: ({ value }) => (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-          {value}
-        </Typography>
-      ),
-    },
-    {
-      field: 'description',
-      headerName: 'Description',
-      flex: 2,
-      minWidth: 250,
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Created At',
-      width: 180,
-      renderCell: ({ value }) => formatDateTime(value),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 80,
-      sortable: false,
-      filterable: false,
-      renderCell: ({ row }) => (
-        <PermissionGuard permissions={[PERMISSIONS.PERMISSIONS_DELETE]}>
-          <Tooltip title="Delete">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={() => handleDelete(row.id)}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </PermissionGuard>
-      ),
-    },
-  ];
+  const handleCollapseAll = () => {
+    setExpandedPanels([]);
+  };
+
+  const groupedPermissions = data?.data || [];
+  const totalCount = data?.totalCount || 0;
+  const totalPages = data?.totalPages || 0;
+  const currentPage = data?.currentPage || 1;
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h5" fontWeight={600}>
-          Permissions
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4" fontWeight={700}>
+          Quản lý quyền
         </Typography>
-        <PermissionGuard permissions={[PERMISSIONS.PERMISSIONS_CREATE]}>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreate}
-          >
-            Create Permission
-          </Button>
-        </PermissionGuard>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreate}
+        >
+          Thêm quyền
+        </Button>
       </Box>
 
-      <DataTable
-        columns={columns}
-        rows={data?.data || []}
-        loading={isLoading}
-        getRowId={(row) => row.id}
-      />
+      <Paper sx={{ p: 3 }}>
+        <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+          <TextField
+            label="Tìm kiếm quyền"
+            placeholder="Tìm theo tài nguyên, hành động hoặc mô tả..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1); // Reset to first page on search
+            }}
+            size="small"
+            sx={{ flex: 1 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={expandedPanels.length === 0 ? handleExpandAll : handleCollapseAll}
+          >
+            {expandedPanels.length === 0 ? 'Mở rộng tất cả' : 'Thu gọn tất cả'}
+          </Button>
+        </Box>
 
-      <Modal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        title="Create Permission"
-        maxWidth="sm"
-        actions={
+        {isLoading ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="body2" color="text.secondary">
+              Đang tải...
+            </Typography>
+          </Box>
+        ) : groupedPermissions.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="body2" color="text.secondary">
+              Không tìm thấy quyền nào
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Stack spacing={2} sx={{ mb: 3 }}>
+              {groupedPermissions.map((group) => (
+                <Accordion
+                  key={group.resource}
+                  expanded={expandedPanels.includes(group.resource)}
+                  onChange={() => handleTogglePanel(group.resource)}
+                  sx={{
+                    '&:before': { display: 'none' },
+                    boxShadow: 1,
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{
+                      backgroundColor: 'action.hover',
+                      '&:hover': {
+                        backgroundColor: 'action.selected',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                      <FolderIcon color="primary" />
+                      <Typography variant="h6" fontWeight={600}>
+                        {group.resource}
+                      </Typography>
+                      <Chip
+                        label={`${group.permissions.length} quyền`}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Grid container spacing={2}>
+                      {group.permissions.map((permission) => (
+                        <Grid item xs={12} sm={6} md={4} key={permission.id}>
+                          <Card
+                            variant="outlined"
+                            sx={{
+                              height: '100%',
+                              '&:hover': {
+                                boxShadow: 2,
+                                borderColor: 'primary.main',
+                              },
+                            }}
+                          >
+                            <CardContent>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                <Chip
+                                  label={permission.action}
+                                  size="small"
+                                  color="secondary"
+                                  sx={{ fontWeight: 600 }}
+                                />
+                                <Tooltip title="Xóa">
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => handleDelete(permission.id)}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                              
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontFamily: 'monospace',
+                                  fontWeight: 500,
+                                  color: 'primary.main',
+                                  mb: 1,
+                                }}
+                              >
+                                {permission.permissionString}
+                              </Typography>
+                              
+                              {permission.description && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                                  {permission.description}
+                                </Typography>
+                              )}
+                              
+                              <Divider sx={{ my: 1 }} />
+                              
+                              <Typography variant="caption" color="text.secondary">
+                                Tạo: {formatDateTime(permission.createdAt)}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Stack>
+
+            {totalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mt: 3 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Tổng: {totalCount} quyền
+                </Typography>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={(e, value) => setPage(value)}
+                  color="primary"
+                  showFirstButton
+                  showLastButton
+                />
+              </Box>
+            )}
+          </>
+        )}
+      </Paper>
+
+      {/* Add Permission Modal */}
+      <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Thêm quyền mới</DialogTitle>
+        <form onSubmit={handleSubmitAdd(handleAddPermission)}>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Tài nguyên"
+                  margin="normal"
+                  placeholder="Ví dụ: users, documents"
+                  {...registerAdd('resource', {
+                    required: 'Tài nguyên là bắt buộc',
+                    pattern: {
+                      value: /^[a-z0-9_-]+$/i,
+                      message: 'Tài nguyên chỉ chứa chữ cái, số, gạch dưới và gạch ngang'
+                    }
+                  })}
+                  error={!!errorsAdd.resource}
+                  helperText={errorsAdd.resource?.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Hành động"
+                  margin="normal"
+                  placeholder="Ví dụ: read, create, update, delete"
+                  {...registerAdd('action', {
+                    required: 'Hành động là bắt buộc',
+                    pattern: {
+                      value: /^[a-z0-9_-]+$/i,
+                      message: 'Hành động chỉ chứa chữ cái, số, gạch dưới và gạch ngang'
+                    }
+                  })}
+                  error={!!errorsAdd.action}
+                  helperText={errorsAdd.action?.message}
+                />
+              </Grid>
+            </Grid>
+
+            <TextField
+              fullWidth
+              label="Mô tả"
+              margin="normal"
+              multiline
+              rows={3}
+              placeholder="Mô tả chi tiết về quyền này..."
+              {...registerAdd('description', {
+                minLength: {
+                  value: 10,
+                  message: 'Mô tả phải có ít nhất 10 ký tự'
+                }
+              })}
+              error={!!errorsAdd.description}
+              helperText={errorsAdd.description?.message}
+            />
+          </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenModal(false)} variant="outlined">
-              Cancel
+            <Button onClick={() => setOpenAddModal(false)} variant="outlined">
+              Hủy
             </Button>
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              variant="contained"
-              loading={isCreating}
-            >
-              Create
+            <Button type="submit" variant="contained" loading={isCreating}>
+              Tạo quyền
             </Button>
           </DialogActions>
-        }
-      >
-        <form>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Resource"
-                margin="normal"
-                placeholder="e.g., users, documents"
-                {...register('resource', { required: 'Resource is required' })}
-                error={!!errors.resource}
-                helperText={errors.resource?.message}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Action"
-                margin="normal"
-                placeholder="e.g., read, create, update, delete"
-                {...register('action', { required: 'Action is required' })}
-                error={!!errors.action}
-                helperText={errors.action?.message}
-              />
-            </Grid>
-          </Grid>
-
-          <TextField
-            fullWidth
-            label="Description"
-            margin="normal"
-            multiline
-            rows={3}
-            {...register('description')}
-            error={!!errors.description}
-            helperText={errors.description?.message}
-          />
         </form>
-      </Modal>
+      </Dialog>
     </Box>
   );
 }

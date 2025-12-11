@@ -53,21 +53,33 @@ export interface LogoutRequest {
 }
 
 // User Types
+export interface UserRole {
+  roleId: string;
+  roleName: string;
+  permissions: Permission[];
+}
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  fullName: string;
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
-  roles?: Role[];
+  lastLoginAt?: string | null;
+  roles?: UserRole[];
   permissions?: Permission[];
 }
 
+export interface PaginatedUsersResponse {
+  users: User[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface UserProfile extends User {
-  roles: Role[];
+  roles: UserRole[];
   permissions: Permission[];
 }
 
@@ -76,12 +88,16 @@ export interface CreateUserRequest {
   password: string;
   firstName: string;
   lastName: string;
+  phoneNumber?: string;
   isActive?: boolean;
 }
 
 export interface UpdateUserRequest {
+  userId: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string;
   isActive?: boolean;
 }
 
@@ -94,12 +110,12 @@ export interface UserContext {
 
 // Role Types (RBAC)
 export interface Role {
-  id: string;
+  roleId: string;
   name: string;
   description: string;
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   permissions?: Permission[];
 }
 
@@ -116,15 +132,31 @@ export interface UpdateRoleRequest {
   isActive?: boolean;
 }
 
+export interface PaginatedRoleResponse {
+  roles: Role[];
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 // Permission Types (RBAC)
 export interface Permission {
-  id: string;
+  permissionId: string;
   resource: string;
   action: string;
-  fullPermission: string; // "resource:action"
+  permissionString: string; // "resource:action"
   description?: string;
   createdAt: string;
-  updatedAt: string;
+  roleCount: number;
+}
+
+export interface PaginatedPermissionResponse {
+  permissions: Permission[];
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 }
 
 export interface CreatePermissionRequest {
@@ -133,19 +165,50 @@ export interface CreatePermissionRequest {
   description?: string;
 }
 
+export interface GroupedPermissionItem {
+  id: string;
+  action: string;
+  description?: string;
+  permissionString: string;
+  createdAt: string;
+}
+
+export interface GroupedPermissionByResource {
+  resource: string;
+  permissions: GroupedPermissionItem[];
+}
+
+export type GroupedPermissionsResponse = GroupedPermissionByResource[];
+
+export interface PaginatedGroupedPermissionsResponse {
+  data: GroupedPermissionByResource[];
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 // Policy Types (PBAC)
 export interface Policy {
-  id: string;
+  policyId: string;
   name: string;
   description: string;
   resource: string;
   action: string;
   effect: 'Allow' | 'Deny';
   priority: number;
-  conditions?: Record<string, any>;
+  conditions?: string; // JSON string
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
+}
+
+export interface PaginatedPoliciesResponse {
+  policies: Policy[];
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 }
 
 export interface CreatePolicyRequest {
@@ -155,7 +218,8 @@ export interface CreatePolicyRequest {
   action: string;
   effect: 'Allow' | 'Deny';
   priority?: number;
-  conditions?: Record<string, any>;
+  conditions?: string;
+  isActive?: boolean;
 }
 
 export interface UpdatePolicyRequest extends CreatePolicyRequest {
@@ -218,6 +282,8 @@ export interface DataTableColumn<T = any> {
   sortable?: boolean;
   filterable?: boolean;
   hideable?: boolean;
+  align?: 'left' | 'center' | 'right';
+  headerAlign?: 'left' | 'center' | 'right';
   renderCell?: (params: { row: T; value: any }) => React.ReactNode;
 }
 

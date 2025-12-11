@@ -9,10 +9,14 @@ export const hasPermission = (
 ): boolean => {
   if (!user || !user.permissions) return false;
   
-  return user.permissions.some(
-    (p: Permission) => p.fullPermission === permission || 
-                       `${p.resource}:${p.action}` === permission
-  );
+  // Handle both array of strings and array of Permission objects
+  return user.permissions.some((p: Permission | string) => {
+    if (typeof p === 'string') {
+      return p === permission;
+    }
+    return p.fullPermission === permission || 
+           `${p.resource}:${p.action}` === permission;
+  });
 };
 
 /**
@@ -72,7 +76,12 @@ export const hasAllRoles = (user: User | null, roles: string[]): boolean => {
 export const getUserPermissions = (user: User | null): string[] => {
   if (!user || !user.permissions) return [];
   
-  return user.permissions.map(p => p.fullPermission || `${p.resource}:${p.action}`);
+  return user.permissions.map(p => {
+    if (typeof p === 'string') {
+      return p;
+    }
+    return p.fullPermission || `${p.resource}:${p.action}`;
+  });
 };
 
 /**
@@ -142,7 +151,25 @@ export const getPermissionsByResource = (
 ): Permission[] => {
   if (!user || !user.permissions) return [];
   
-  return user.permissions.filter(p => p.resource === resource);
+  return user.permissions.filter(p => {
+    if (typeof p === 'string') {
+      return p.startsWith(`${resource}:`);
+    }
+    return p.resource === resource;
+  }).map(p => {
+    if (typeof p === 'string') {
+      const [res, action] = p.split(':');
+      return {
+        id: '',
+        resource: res,
+        action: action,
+        fullPermission: p,
+        createdAt: '',
+        updatedAt: ''
+      } as Permission;
+    }
+    return p;
+  });
 };
 
 /**
