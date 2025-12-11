@@ -30,6 +30,11 @@ export const authServiceBaseQuery = createServiceBaseQuery(API_CONFIG.AUTH_SERVI
 export const equipmentServiceBaseQuery = createServiceBaseQuery(API_CONFIG.EQUIPMENT_SERVICE_URL);
 
 /**
+ * Base query for Warehouse Service
+ */
+export const warehouseServiceBaseQuery = createServiceBaseQuery(API_CONFIG.WAREHOUSE_SERVICE_URL);
+
+/**
  * Create base query with automatic token refresh
  * This can be used for any service
  */
@@ -57,3 +62,8 @@ export const baseQueryWithReauth = createBaseQueryWithReauth(authServiceBaseQuer
  * Equipment service base query with auth
  */
 export const equipmentBaseQueryWithReauth = createBaseQueryWithReauth(equipmentServiceBaseQuery);
+
+/**
+ * Warehouse service base query with auth
+ */
+export const warehouseBaseQueryWithReauth = createBaseQueryWithReauth(warehouseServiceBaseQuery);

@@ -1,0 +1,528 @@
+{
+  "info": {
+    "name": "Liquidation Management API",
+    "description": "Complete API collection for Equipment Liquidation Management Module with approval workflow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "liquidation-management-api",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Liquidations - Query Operations",
+      "item": [
+        {
+          "name": "Get All Liquidation Requests (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Items per page (default: 10, max: 100)"
+                },
+                {
+                  "key": "isApproved",
+                  "value": "",
+                  "description": "Filter by approval status: true=approved, false=rejected, null=all (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieves a paginated list of liquidation requests with optional approval status filter"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Liquidation Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "pending"]
+            },
+            "description": "Retrieves all pending liquidation requests awaiting manager approval"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Liquidation Request by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "{{liquidationId}}"]
+            },
+            "description": "Retrieves detailed information about a specific liquidation request"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Liquidation Requests by Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/equipment/{{equipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "equipment", "{{equipmentId}}"]
+            },
+            "description": "Retrieves liquidation history for a specific equipment"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Liquidations - Command Operations",
+      "item": [
+        {
+          "name": "Create Liquidation Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"liquidationValue\": 500.00,\n  \"note\": \"Old equipment - outdated technology, no longer meets business requirements\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations"]
+            },
+            "description": "Creates a new liquidation request for equipment disposal. Status will be set to Pending."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Liquidation Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"liquidationRequestId\": \"{{liquidationId}}\",\n  \"liquidationValue\": 450.00,\n  \"note\": \"Revised liquidation value after assessment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "{{liquidationId}}"]
+            },
+            "description": "Updates a pending liquidation request (only pending requests can be updated)"
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Liquidation Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"liquidationRequestId\": \"{{liquidationId}}\",\n  \"approvedBy\": \"{{managerId}}\",\n  \"liquidationValue\": 450.00,\n  \"approvalNotes\": \"Approved for disposal. Scheduled for auction.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "{{liquidationId}}", "approve"]
+            },
+            "description": "Approves liquidation request. Sets equipment status to Liquidated and exports from warehouse if applicable."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Liquidation Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"liquidationRequestId\": \"{{liquidationId}}\",\n  \"rejectedBy\": \"{{managerId}}\",\n  \"rejectionReason\": \"Equipment still has useful life. Reassign to other department instead.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "liquidations", "{{liquidationId}}", "reject"]
+            },
+            "description": "Rejects a liquidation request with a reason. Equipment remains in current status."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Workflows & Scenarios",
+      "item": [
+        {
+          "name": "Complete Liquidation Approval Workflow",
+          "item": [
+            {
+              "name": "1. Create Liquidation Request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 201\", function () {",
+                      "    pm.expect([200, 201]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.environment.set(\"liquidationId\", jsonData.id || jsonData);",
+                      "    pm.test(\"Liquidation ID captured\", function () {",
+                      "        pm.expect(pm.environment.get(\"liquidationId\")).to.not.be.undefined;",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"liquidationValue\": 350.00,\n  \"note\": \"Obsolete laptop - 7 years old, frequent breakdowns, replacement parts unavailable\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations"]
+                },
+                "description": "STEP 1: Create liquidation request for old equipment"
+              },
+              "response": []
+            },
+            {
+              "name": "2. Manager Reviews Pending Requests",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Pending requests returned\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/pending",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "pending"]
+                },
+                "description": "STEP 2: Manager retrieves all pending approval requests"
+              },
+              "response": []
+            },
+            {
+              "name": "3. Get Request Details",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Liquidation details retrieved\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.equipmentId).to.not.be.undefined;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "{{liquidationId}}"]
+                },
+                "description": "STEP 3: Manager reviews detailed liquidation request"
+              },
+              "response": []
+            },
+            {
+              "name": "4. Approve Liquidation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 204\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "pm.test(\"Approval successful\", function () {",
+                      "    pm.expect(pm.response).to.not.be.error;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"liquidationRequestId\": \"{{liquidationId}}\",\n  \"approvedBy\": \"{{managerId}}\",\n  \"liquidationValue\": 350.00,\n  \"approvalNotes\": \"Approved for disposal via certified e-waste recycler\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}/approve",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "{{liquidationId}}", "approve"]
+                },
+                "description": "STEP 4: Manager approves the liquidation request"
+              },
+              "response": []
+            },
+            {
+              "name": "5. Verify Approval",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Liquidation is approved\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.isApproved).to.be.true;",
+                      "});",
+                      "",
+                      "pm.test(\"Approval date is set\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.approvedDate).to.not.be.null;",
+                      "});",
+                      "",
+                      "pm.test(\"Liquidation value recorded\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.liquidationValue).to.be.above(0);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/{{liquidationId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "{{liquidationId}}"]
+                },
+                "description": "STEP 5: Verify liquidation is approved correctly"
+              },
+              "response": []
+            }
+          ],
+          "description": "Complete workflow from creating liquidation request to manager approval"
+        },
+        {
+          "name": "Liquidation Rejection Scenario",
+          "item": [
+            {
+              "name": "1. Create Liquidation Request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.environment.set(\"rejectedLiquidationId\", jsonData.id || jsonData);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"liquidationValue\": 200.00,\n  \"note\": \"Requesting liquidation - equipment seems old\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Reject Liquidation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Rejection successful\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"liquidationRequestId\": \"{{rejectedLiquidationId}}\",\n  \"rejectedBy\": \"{{managerId}}\",\n  \"rejectionReason\": \"Equipment assessment shows 3+ years remaining useful life. Recommend reassignment to branch office.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/{{rejectedLiquidationId}}/reject",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "{{rejectedLiquidationId}}", "reject"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Verify Rejection",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Liquidation is rejected\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.isApproved).to.be.false;",
+                      "});",
+                      "",
+                      "pm.test(\"Rejection reason recorded\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.note).to.include(\"[REJECTED]\");",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/liquidations/{{rejectedLiquidationId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "liquidations", "{{rejectedLiquidationId}}"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Scenario where manager rejects a liquidation request"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "liquidationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rejectedLiquidationId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

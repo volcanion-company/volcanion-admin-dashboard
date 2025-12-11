@@ -45,31 +45,11 @@ export interface UpdateEquipmentRequest extends CreateEquipmentRequest {
   id: string;
 }
 
-// Warehouse Types
-export enum WarehouseTransactionType {
-  Import = 1,
-  Export = 2,
-  Adjustment = 3,
-}
-
-export interface WarehouseTransaction {
-  id: string;
-  equipmentId: string;
-  equipmentName?: string;
-  transactionType: WarehouseTransactionType;
-  quantity: number;
-  date: string;
-  notes?: string;
-  createdBy?: string;
-  createdAt: string;
-}
-
-export interface CreateWarehouseTransactionRequest {
-  equipmentId: string;
-  transactionType: WarehouseTransactionType;
-  quantity: number;
-  date: string;
-  notes?: string;
+// Assignment Status Enum
+export enum AssignmentStatus {
+  Assigned = 1,
+  Returned = 2,
+  Lost = 3,
 }
 
 // Assignment Types
@@ -80,19 +60,39 @@ export interface Assignment {
   assignedToUserId?: string;
   assignedToUserName?: string;
   assignedToDepartment?: string;
-  assignmentDate: string;
-  returnDate?: string;
+  assignedDate: string;
+  assignedBy?: string;
+  returnDate?: string | null;
+  returnNotes?: string | null;
+  returnedBy?: string | null;
+  status: AssignmentStatus;
   notes?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateAssignmentRequest {
   equipmentId: string;
   assignedToUserId?: string;
   assignedToDepartment?: string;
-  assignmentDate: string;
-  returnDate?: string;
+  assignedDate: string;
   notes?: string;
+  assignedBy?: string;
+}
+
+export interface UpdateAssignmentRequest {
+  assignmentId: string;
+  assignedDate?: string;
+  notes?: string;
+  assignedToUserId?: string;
+  assignedToDepartment?: string;
+}
+
+export interface ReturnAssignmentRequest {
+  assignmentId: string;
+  returnNotes?: string;
+  returnedBy?: string;
+  needsMaintenance?: boolean;
 }
 
 // Audit Types
@@ -122,25 +122,73 @@ export interface CreateAuditRequest {
 }
 
 // Maintenance Types
+export enum MaintenanceStatus {
+  Pending = 1,
+  InProgress = 2,
+  Completed = 3,
+  Cancelled = 4,
+}
+
 export interface Maintenance {
   id: string;
   equipmentId: string;
   equipmentName?: string;
-  maintenanceDate: string;
+  requesterId: string;
+  requesterName?: string;
+  technicianId?: string;
+  technicianName?: string;
+  status: MaintenanceStatus;
   description: string;
-  cost?: number;
-  performedBy?: string;
   notes?: string;
+  cost?: number;
+  requestDate: string;
+  startDate?: string;
+  endDate?: string;
+  assignmentNotes?: string;
+  startNotes?: string;
+  completionNotes?: string;
+  cancellationReason?: string;
+  stillNeedsMaintenance?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateMaintenanceRequest {
   equipmentId: string;
-  maintenanceDate: string;
+  requesterId: string;
   description: string;
-  cost?: number;
-  performedBy?: string;
   notes?: string;
+}
+
+export interface UpdateMaintenanceRequest {
+  maintenanceRequestId: string;
+  description: string;
+  notes?: string;
+}
+
+export interface AssignTechnicianRequest {
+  maintenanceRequestId: string;
+  technicianId: string;
+  assignmentNotes?: string;
+}
+
+export interface StartMaintenanceRequest {
+  maintenanceRequestId: string;
+  technicianId: string;
+  startNotes?: string;
+}
+
+export interface CompleteMaintenanceRequest {
+  maintenanceRequestId: string;
+  technicianId: string;
+  cost: number;
+  completionNotes?: string;
+  stillNeedsMaintenance?: boolean;
+}
+
+export interface CancelMaintenanceRequest {
+  maintenanceRequestId: string;
+  cancellationReason: string;
 }
 
 // Liquidation Types
@@ -148,17 +196,41 @@ export interface Liquidation {
   id: string;
   equipmentId: string;
   equipmentName?: string;
-  liquidationDate: string;
-  reason: string;
-  recoveredValue?: number;
-  notes?: string;
+  liquidationValue: number;
+  note?: string;
+  isApproved?: boolean | null;
+  approvedBy?: string;
+  approvedByName?: string;
+  approvedDate?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectionReason?: string;
+  approvalNotes?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateLiquidationRequest {
   equipmentId: string;
-  liquidationDate: string;
-  reason: string;
-  recoveredValue?: number;
-  notes?: string;
+  liquidationValue: number;
+  note?: string;
+}
+
+export interface UpdateLiquidationRequest {
+  liquidationRequestId: string;
+  liquidationValue: number;
+  note?: string;
+}
+
+export interface ApproveLiquidationRequest {
+  liquidationRequestId: string;
+  approvedBy: string;
+  liquidationValue: number;
+  approvalNotes?: string;
+}
+
+export interface RejectLiquidationRequest {
+  liquidationRequestId: string;
+  rejectedBy: string;
+  rejectionReason: string;
 }
