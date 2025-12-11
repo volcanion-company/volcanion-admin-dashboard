@@ -228,20 +228,30 @@ export default function PermissionsPage() {
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Grid container spacing={2}>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                          xs: '1fr',
+                          sm: 'repeat(2, 1fr)',
+                          md: 'repeat(3, 1fr)',
+                        },
+                        gap: 2,
+                      }}
+                    >
                       {group.permissions.map((permission) => (
-                        <Grid item xs={12} sm={6} md={4} key={permission.id}>
-                          <Card
-                            variant="outlined"
-                            sx={{
-                              height: '100%',
-                              '&:hover': {
-                                boxShadow: 2,
-                                borderColor: 'primary.main',
-                              },
-                            }}
-                          >
-                            <CardContent>
+                        <Card
+                          key={permission.id}
+                          variant="outlined"
+                          sx={{
+                            height: '100%',
+                            '&:hover': {
+                              boxShadow: 2,
+                              borderColor: 'primary.main',
+                            },
+                          }}
+                        >
+                          <CardContent>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                 <Chip
                                   label={permission.action}
@@ -285,10 +295,9 @@ export default function PermissionsPage() {
                               </Typography>
                             </CardContent>
                           </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </AccordionDetails>
+                        ))}
+                      </Box>
+                    </AccordionDetails>
                 </Accordion>
               ))}
             </Stack>

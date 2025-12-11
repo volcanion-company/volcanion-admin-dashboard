@@ -1,6 +1,15 @@
-// API Configuration
+// API Configuration - Multiple Services
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000',
+  // Auth & User Management Service
+  AUTH_SERVICE_URL: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'https://localhost:5001',
+  
+  // Equipment Management Service
+  EQUIPMENT_SERVICE_URL: process.env.NEXT_PUBLIC_EQUIPMENT_SERVICE_URL || 'https://localhost:56983',
+  
+  // Legacy base URL (for backward compatibility)
+  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'https://localhost:5001',
+  
+  // Common configuration
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
@@ -120,6 +129,13 @@ export const ROUTES = {
   PERMISSIONS: '/dashboard/permissions',
   POLICIES: '/dashboard/policies',
   SETTINGS: '/dashboard/settings',
+  // Equipment Management
+  EQUIPMENTS: '/dashboard/equipments',
+  WAREHOUSES: '/dashboard/warehouses',
+  ASSIGNMENTS: '/dashboard/assignments',
+  AUDITS: '/dashboard/audits',
+  MAINTENANCES: '/dashboard/maintenances',
+  LIQUIDATIONS: '/dashboard/liquidations',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '/404',
 };
@@ -141,6 +157,12 @@ export const PROTECTED_ROUTES = [
   ROUTES.PERMISSIONS,
   ROUTES.POLICIES,
   ROUTES.SETTINGS,
+  ROUTES.EQUIPMENTS,
+  ROUTES.WAREHOUSES,
+  ROUTES.ASSIGNMENTS,
+  ROUTES.AUDITS,
+  ROUTES.MAINTENANCES,
+  ROUTES.LIQUIDATIONS,
 ];
 
 // HTTP Status Codes
@@ -163,6 +185,30 @@ export const TOAST_DURATION = {
   ERROR: 5000,
   WARNING: 4000,
   INFO: 3000,
+};
+
+// Equipment Status
+export const EQUIPMENT_STATUS = {
+  1: { label: 'Sẵn sàng', color: 'success' },
+  2: { label: 'Đang sử dụng', color: 'primary' },
+  3: { label: 'Bảo trì', color: 'warning' },
+  4: { label: 'Hỏng', color: 'error' },
+  5: { label: 'Mất', color: 'default' },
+  6: { label: 'Thanh lý', color: 'default' },
+};
+
+// Warehouse Transaction Type
+export const WAREHOUSE_TRANSACTION_TYPE = {
+  1: { label: 'Nhập kho', color: 'success' },
+  2: { label: 'Xuất kho', color: 'warning' },
+  3: { label: 'Điều chỉnh', color: 'info' },
+};
+
+// Audit Result
+export const AUDIT_RESULT = {
+  1: { label: 'Khớp', color: 'success' },
+  2: { label: 'Thiếu', color: 'error' },
+  3: { label: 'Hư hỏng', color: 'warning' },
 };
 
 // Permissions List
@@ -195,6 +241,27 @@ export const PERMISSIONS = {
   DOCUMENTS_CREATE: 'documents:create',
   DOCUMENTS_UPDATE: 'documents:update',
   DOCUMENTS_DELETE: 'documents:delete',
+  
+  // Equipment Management
+  EQUIPMENTS_READ: 'equipments:read',
+  EQUIPMENTS_CREATE: 'equipments:create',
+  EQUIPMENTS_UPDATE: 'equipments:update',
+  EQUIPMENTS_DELETE: 'equipments:delete',
+  
+  WAREHOUSES_READ: 'warehouses:read',
+  WAREHOUSES_CREATE: 'warehouses:create',
+  
+  ASSIGNMENTS_READ: 'assignments:read',
+  ASSIGNMENTS_CREATE: 'assignments:create',
+  
+  AUDITS_READ: 'audits:read',
+  AUDITS_CREATE: 'audits:create',
+  
+  MAINTENANCES_READ: 'maintenances:read',
+  MAINTENANCES_CREATE: 'maintenances:create',
+  
+  LIQUIDATIONS_READ: 'liquidations:read',
+  LIQUIDATIONS_CREATE: 'liquidations:create',
 };
 
 // Roles List

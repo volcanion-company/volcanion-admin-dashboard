@@ -14,6 +14,7 @@ import { rolesApi } from './api/rolesApi';
 import { permissionsApi } from './api/permissionsApi';
 import { policiesApi } from './api/policiesApi';
 import { authorizationApi } from './api/authorizationApi';
+import { equipmentsApi } from './api/equipmentsApi';
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     [permissionsApi.reducerPath]: permissionsApi.reducer,
     [policiesApi.reducerPath]: policiesApi.reducer,
     [authorizationApi.reducerPath]: authorizationApi.reducer,
+    [equipmentsApi.reducerPath]: equipmentsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -38,7 +40,8 @@ export const store = configureStore({
       .concat(rolesApi.middleware)
       .concat(permissionsApi.middleware)
       .concat(policiesApi.middleware)
-      .concat(authorizationApi.middleware),
+      .concat(authorizationApi.middleware)
+      .concat(equipmentsApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

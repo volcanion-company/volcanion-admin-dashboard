@@ -10,8 +10,8 @@ export const formatNumber = (num: number): string => {
  */
 export const formatCurrency = (
   amount: number,
-  currency: string = 'USD',
-  locale: string = 'en-US'
+  currency: string = 'VND',
+  locale: string = 'vi-VN'
 ): string => {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -24,6 +24,15 @@ export const formatCurrency = (
  */
 export const formatPercentage = (value: number, decimals: number = 2): string => {
   return `${value.toFixed(decimals)}%`;
+};
+
+/**
+ * Format date to string
+ */
+export const formatDate = (date: string | Date, format: string = 'dd/MM/yyyy'): string => {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('vi-VN');
 };
 
 /**

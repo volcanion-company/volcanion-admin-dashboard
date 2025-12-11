@@ -23,6 +23,12 @@ import PolicyIcon from '@mui/icons-material/Policy';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import DevicesIcon from '@mui/icons-material/Devices';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import BuildIcon from '@mui/icons-material/Build';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 
 import { useAppSelector } from '@/store';
 import { ROUTES, THEME_CONFIG } from '@/lib/constants';
@@ -51,8 +57,63 @@ const menuItems: MenuItem[] = [
     permissions: [PERMISSIONS.USERS_READ],
   },
   {
+    title: 'Quản lý thiết bị',
+    icon: <DevicesIcon />,
+    permissions: [
+      PERMISSIONS.EQUIPMENTS_READ,
+      PERMISSIONS.WAREHOUSES_READ,
+      PERMISSIONS.ASSIGNMENTS_READ,
+      PERMISSIONS.AUDITS_READ,
+      PERMISSIONS.MAINTENANCES_READ,
+      PERMISSIONS.LIQUIDATIONS_READ,
+    ],
+    children: [
+      {
+        title: 'Thiết bị',
+        path: ROUTES.EQUIPMENTS,
+        icon: <DevicesIcon />,
+        permissions: [PERMISSIONS.EQUIPMENTS_READ],
+      },
+      {
+        title: 'Kho',
+        path: ROUTES.WAREHOUSES,
+        icon: <WarehouseIcon />,
+        permissions: [PERMISSIONS.WAREHOUSES_READ],
+      },
+      {
+        title: 'Bàn giao',
+        path: ROUTES.ASSIGNMENTS,
+        icon: <AssignmentIcon />,
+        permissions: [PERMISSIONS.ASSIGNMENTS_READ],
+      },
+      {
+        title: 'Kiểm kê',
+        path: ROUTES.AUDITS,
+        icon: <FactCheckIcon />,
+        permissions: [PERMISSIONS.AUDITS_READ],
+      },
+      {
+        title: 'Bảo trì',
+        path: ROUTES.MAINTENANCES,
+        icon: <BuildIcon />,
+        permissions: [PERMISSIONS.MAINTENANCES_READ],
+      },
+      {
+        title: 'Thanh lý',
+        path: ROUTES.LIQUIDATIONS,
+        icon: <DeleteSweepIcon />,
+        permissions: [PERMISSIONS.LIQUIDATIONS_READ],
+      },
+    ],
+  },
+  {
     title: 'Phân quyền',
     icon: <SecurityIcon />,
+    permissions: [
+      PERMISSIONS.ROLES_READ,
+      PERMISSIONS.PERMISSIONS_READ,
+      PERMISSIONS.POLICIES_READ,
+    ],
     children: [
       {
         title: 'Vai trò',
