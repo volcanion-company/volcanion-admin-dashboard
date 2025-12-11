@@ -24,7 +24,7 @@ import { useGetMyProfileQuery } from '@/store/api/userApi';
 import { useAppDispatch } from '@/store';
 import { setUser } from '@/store/slices/authSlice';
 import { setAccessToken, setRefreshToken } from '@/utils/cookie';
-import { ROUTES } from '@/lib/constants';
+import { API_ENDPOINTS, ROUTES } from '@/lib/constants';
 import { LoginRequest } from '@/types';
 import AuthGuard from '@/components/auth/AuthGuard';
 
@@ -70,7 +70,7 @@ export default function LoginPage() {
       // Fetch user profile
       try {
         const profileResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/userprofile/me`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL + API_ENDPOINTS.USER_PROFILE.ME}`,
           {
             headers: {
               Authorization: `Bearer ${response.accessToken}`,
@@ -80,6 +80,7 @@ export default function LoginPage() {
         
         if (profileResponse.ok) {
           const profile = await profileResponse.json();
+          console.log('Fetched profile:', profile);
           dispatch(setUser(profile));
         }
       } catch (profileError) {
