@@ -15,6 +15,11 @@ import { permissionsApi } from './api/permissionsApi';
 import { policiesApi } from './api/policiesApi';
 import { authorizationApi } from './api/authorizationApi';
 import { equipmentsApi } from './api/equipmentsApi';
+import { warehousesApi } from './api/warehousesApi';
+import { assignmentsApi } from './api/assignmentsApi';
+import { auditsApi } from './api/auditsApi';
+import { maintenancesApi } from './api/maintenancesApi';
+import { liquidationsApi } from './api/liquidationsApi';
 
 export const store = configureStore({
   reducer: {
@@ -31,6 +36,11 @@ export const store = configureStore({
     [policiesApi.reducerPath]: policiesApi.reducer,
     [authorizationApi.reducerPath]: authorizationApi.reducer,
     [equipmentsApi.reducerPath]: equipmentsApi.reducer,
+    [warehousesApi.reducerPath]: warehousesApi.reducer,
+    [assignmentsApi.reducerPath]: assignmentsApi.reducer,
+    [auditsApi.reducerPath]: auditsApi.reducer,
+    [maintenancesApi.reducerPath]: maintenancesApi.reducer,
+    [liquidationsApi.reducerPath]: liquidationsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -41,7 +51,12 @@ export const store = configureStore({
       .concat(permissionsApi.middleware)
       .concat(policiesApi.middleware)
       .concat(authorizationApi.middleware)
-      .concat(equipmentsApi.middleware),
+      .concat(equipmentsApi.middleware)
+      .concat(warehousesApi.middleware)
+      .concat(assignmentsApi.middleware)
+      .concat(auditsApi.middleware)
+      .concat(maintenancesApi.middleware)
+      .concat(liquidationsApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

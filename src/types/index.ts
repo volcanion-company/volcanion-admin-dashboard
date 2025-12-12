@@ -340,3 +340,6 @@ export interface PaginationParams {
 
 // Export Equipment types
 export * from './equipment.types';
+
+// Export Warehouse types
+export * from './warehouse.types';

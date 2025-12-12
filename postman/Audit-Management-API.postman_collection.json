@@ -1,0 +1,484 @@
+{
+  "info": {
+    "name": "Audit Management API",
+    "description": "Complete API collection for Equipment Audit Management Module with mobile batch upload and offline sync support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "audit-management-api",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Audits - Query Operations",
+      "item": [
+        {
+          "name": "Get All Audit Records (Paginated with Filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audits?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Items per page (default: 10, max: 100)"
+                },
+                {
+                  "key": "equipmentId",
+                  "value": "",
+                  "description": "Filter by equipment ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "result",
+                  "value": "",
+                  "description": "Filter by result: 0=Match, 1=NotMatch, 2=Missing (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "fromDate",
+                  "value": "",
+                  "description": "Start date for date range filter (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "toDate",
+                  "value": "",
+                  "description": "End date for date range filter (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieves a paginated list of audit records with optional filtering by equipment, result, and date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audit Record by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audits/{{auditId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits", "{{auditId}}"]
+            },
+            "description": "Retrieves detailed information about a specific audit record"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audit History by Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audits/equipment/{{equipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits", "equipment", "{{equipmentId}}"]
+            },
+            "description": "Retrieves the complete audit history for a specific equipment"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audits for Offline Sync",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audits/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits", "sync"],
+              "query": [
+                {
+                  "key": "sinceDate",
+                  "value": "",
+                  "description": "ISO 8601 datetime - retrieve records modified after this date (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieves audit records for mobile app offline synchronization (incremental sync support)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Audits - Command Operations",
+      "item": [
+        {
+          "name": "Create Single Audit Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"checkDate\": \"{{$isoTimestamp}}\",\n  \"checkedByUserId\": \"{{userId}}\",\n  \"result\": 0,\n  \"note\": \"Equipment found in expected location\",\n  \"location\": \"Floor 3, Room 301\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/audits",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits"]
+            },
+            "description": "Creates a new audit record. Result values: 0=Match, 1=NotMatch, 2=Missing"
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Create Audit Records (Mobile Upload)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"auditRecords\": [\n    {\n      \"equipmentId\": \"{{equipmentId}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"{{userId}}\",\n      \"result\": 0,\n      \"note\": \"Equipment found - good condition\",\n      \"location\": \"Floor 3, Room 301\"\n    },\n    {\n      \"equipmentId\": \"{{equipmentId2}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"{{userId}}\",\n      \"result\": 1,\n      \"note\": \"Equipment found but location mismatch\",\n      \"location\": \"Floor 2, Room 205\"\n    },\n    {\n      \"equipmentId\": \"{{equipmentId3}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"{{userId}}\",\n      \"result\": 2,\n      \"note\": \"Equipment not found during audit\",\n      \"location\": null\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/audits/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits", "batch"]
+            },
+            "description": "Creates multiple audit records in a single batch operation (supports up to 1000 records). Used by mobile app for offline upload."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Audit Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"result\": 0,\n  \"note\": \"Correction: Equipment was found after re-checking warehouse section B\",\n  \"location\": \"Warehouse - Section B, Shelf 12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/audits/{{auditId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audits", "{{auditId}}"]
+            },
+            "description": "Updates an existing audit record (correction only). Result values: 0=Match, 1=NotMatch, 2=Missing"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Workflows & Scenarios",
+      "item": [
+        {
+          "name": "Mobile App Batch Upload Workflow",
+          "item": [
+            {
+              "name": "1. Mobile App - Download Equipment List for Sync",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Audit records retrieved\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits/sync?sinceDate={{lastSyncDate}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits", "sync"],
+                  "query": [
+                    {
+                      "key": "sinceDate",
+                      "value": "{{lastSyncDate}}"
+                    }
+                  ]
+                },
+                "description": "STEP 1: Mobile app downloads audit data for offline use (incremental sync)"
+              },
+              "response": []
+            },
+            {
+              "name": "2. Mobile App - Batch Upload Scanned Audits",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Batch result returned\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData).to.have.property('totalRecords');",
+                      "    pm.expect(jsonData).to.have.property('successCount');",
+                      "    pm.expect(jsonData).to.have.property('failureCount');",
+                      "});",
+                      "",
+                      "pm.test(\"All records processed successfully\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.failureCount).to.equal(0);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"auditRecords\": [\n    {\n      \"equipmentId\": \"{{equipmentId}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"mobile-user-001\",\n      \"result\": 0,\n      \"note\": \"QR scanned - Floor 3 Office\",\n      \"location\": \"Floor 3, Room 301\"\n    },\n    {\n      \"equipmentId\": \"{{equipmentId2}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"mobile-user-001\",\n      \"result\": 0,\n      \"note\": \"QR scanned - Floor 3 Office\",\n      \"location\": \"Floor 3, Room 302\"\n    },\n    {\n      \"equipmentId\": \"{{equipmentId3}}\",\n      \"checkDate\": \"{{$isoTimestamp}}\",\n      \"checkedByUserId\": \"mobile-user-001\",\n      \"result\": 2,\n      \"note\": \"Equipment missing - not found in expected location\",\n      \"location\": null\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits/batch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits", "batch"]
+                },
+                "description": "STEP 2: Upload batch of scanned audit records from mobile app (offline mode)"
+              },
+              "response": []
+            },
+            {
+              "name": "3. Verify Batch Upload Results",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Audit records exist\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.totalCount).to.be.above(0);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits?pageNumber=1&pageSize=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits"],
+                  "query": [
+                    {
+                      "key": "pageNumber",
+                      "value": "1"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "STEP 3: Verify uploaded audit records appear in system"
+              },
+              "response": []
+            }
+          ],
+          "description": "Complete workflow for mobile app offline audit scanning and batch upload"
+        },
+        {
+          "name": "Audit Correction Scenario",
+          "item": [
+            {
+              "name": "1. Create Incorrect Audit Record",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var auditId = pm.response.json();",
+                      "    pm.environment.set(\"incorrectAuditId\", auditId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"checkDate\": \"{{$isoTimestamp}}\",\n  \"checkedByUserId\": \"{{userId}}\",\n  \"result\": 2,\n  \"note\": \"Equipment not found\",\n  \"location\": null\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Correct Audit Record (Found Equipment)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Correction successful\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"result\": 0,\n  \"note\": \"CORRECTION: Equipment was found in storage - previously recorded as missing by mistake\",\n  \"location\": \"Storage Room A, Shelf 5\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits/{{incorrectAuditId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits", "{{incorrectAuditId}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Verify Correction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Audit result corrected to Match\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.result).to.equal(0);",
+                      "});",
+                      "",
+                      "pm.test(\"Location updated\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.location).to.include('Storage Room');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/audits/{{incorrectAuditId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "audits", "{{incorrectAuditId}}"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Scenario where an audit record is corrected after initial entry (equipment found after being marked missing)"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "auditId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId3",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lastSyncDate",
+      "value": "2025-12-01T00:00:00Z",
+      "type": "string"
+    },
+    {
+      "key": "incorrectAuditId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

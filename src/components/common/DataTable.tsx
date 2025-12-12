@@ -120,7 +120,7 @@ export default function DataTable<T extends Record<string, any>>({
         checkboxSelection={checkboxSelection}
         disableRowSelectionOnClick={disableRowSelectionOnClick}
         loading={loading}
-        autoHeight={autoHeight}
+        autoHeight={rows.length > 0 ? autoHeight : false}
         sx={{
           border: 'none',
           '& .MuiDataGrid-cell': {
@@ -133,10 +133,31 @@ export default function DataTable<T extends Record<string, any>>({
           '& .MuiDataGrid-row:hover': {
             backgroundColor: 'action.hover',
           },
+          '& .MuiDataGrid-overlayWrapper': {
+            minHeight: rows.length === 0 ? 'auto !important' : undefined,
+            height: rows.length === 0 ? 'auto !important' : undefined,
+          },
+          '& .MuiDataGrid-overlayWrapperInner': {
+            minHeight: rows.length === 0 ? 'auto !important' : undefined,
+            height: rows.length === 0 ? 'auto !important' : undefined,
+          },
+          '& .MuiDataGrid-virtualScroller': {
+            minHeight: rows.length === 0 ? 'auto !important' : undefined,
+            height: rows.length === 0 ? 'auto !important' : undefined,
+          },
         }}
         slots={{
           noRowsOverlay: () => (
-            <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
+            <Box 
+              className="MuiBox-root mui-fewm7m"
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                paddingTop: 3,
+              }}
+            >
               <EmptyState
                 title="No data found"
                 description="There are no records to display"

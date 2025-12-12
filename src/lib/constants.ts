@@ -6,6 +6,9 @@ export const API_CONFIG = {
   // Equipment Management Service
   EQUIPMENT_SERVICE_URL: process.env.NEXT_PUBLIC_EQUIPMENT_SERVICE_URL || 'https://localhost:56983',
   
+  // Warehouse Management Service
+  WAREHOUSE_SERVICE_URL: process.env.NEXT_PUBLIC_WAREHOUSE_SERVICE_URL || 'https://localhost:56983',
+  
   // Legacy base URL (for backward compatibility)
   BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'https://localhost:5001',
   
@@ -202,6 +205,21 @@ export const WAREHOUSE_TRANSACTION_TYPE = {
   1: { label: 'Nhập kho', color: 'success' },
   2: { label: 'Xuất kho', color: 'warning' },
   3: { label: 'Điều chỉnh', color: 'info' },
+};
+
+// Assignment Status
+export const ASSIGNMENT_STATUS = {
+  1: { label: 'Đang sử dụng', color: 'primary' },
+  2: { label: 'Đã trả', color: 'success' },
+  3: { label: 'Mất', color: 'error' },
+};
+
+// Maintenance Status
+export const MAINTENANCE_STATUS = {
+  1: { label: 'Chờ xử lý', color: 'warning' },
+  2: { label: 'Đang sửa chữa', color: 'info' },
+  3: { label: 'Hoàn thành', color: 'success' },
+  4: { label: 'Đã hủy', color: 'default' },
 };
 
 // Audit Result
