@@ -1,0 +1,441 @@
+{
+  "info": {
+    "name": "Assignment Management API",
+    "description": "Complete API collection for Equipment Assignment Management Module",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "assignment-management-api",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Assignments - Query Operations",
+      "item": [
+        {
+          "name": "Get All Assignments (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Items per page (default: 10, max: 100)"
+                },
+                {
+                  "key": "equipmentId",
+                  "value": "",
+                  "description": "Filter by equipment ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "description": "Filter by user ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: 1=Assigned, 2=Returned, 3=Lost (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of all assignments with optional filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assignment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}"]
+            },
+            "description": "Get detailed information about a specific assignment"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assignments by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/user/{{userId}}?activeOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "user", "{{userId}}"],
+              "query": [
+                {
+                  "key": "activeOnly",
+                  "value": "true",
+                  "description": "Show only active assignments (default: true)"
+                }
+              ]
+            },
+            "description": "Get all assignments for a specific user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assignments by Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/equipment/{{equipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "equipment", "{{equipmentId}}"]
+            },
+            "description": "Get assignment history for a specific equipment"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Assignments Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments?pageNumber=1&pageSize=20&status=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "1",
+                  "description": "1 = Assigned (Active)"
+                }
+              ]
+            },
+            "description": "Get only active (assigned) assignments"
+          },
+          "response": []
+        }
+      ],
+      "description": "Query operations for viewing assignments"
+    },
+    {
+      "name": "Assignments - Command Operations",
+      "item": [
+        {
+          "name": "Create Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"assignedToUserId\": \"user123\",\n  \"assignedToDepartment\": null,\n  \"assignedDate\": \"{{$isoTimestamp}}\",\n  \"notes\": \"Standard equipment assignment\",\n  \"assignedBy\": \"Admin User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"]
+            },
+            "description": "Create a new equipment assignment. Auto-exports from warehouse if stock exists."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Assignment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{assignmentId}}\",\n  \"assignedDate\": \"{{$isoTimestamp}}\",\n  \"notes\": \"Updated assignment notes\",\n  \"assignedToUserId\": \"user456\",\n  \"assignedToDepartment\": \"IT Department\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}"]
+            },
+            "description": "Update assignment information. Only allowed for active assignments."
+          },
+          "response": []
+        },
+        {
+          "name": "Return Assignment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{assignmentId}}\",\n  \"returnNotes\": \"Equipment returned in good condition\",\n  \"returnedBy\": \"Admin User\",\n  \"needsMaintenance\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}", "return"]
+            },
+            "description": "Return an assigned equipment. Auto-imports back to warehouse and updates equipment status."
+          },
+          "response": []
+        },
+        {
+          "name": "Return Assignment (Needs Maintenance)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{assignmentId}}\",\n  \"returnNotes\": \"Equipment has issues, needs repair\",\n  \"returnedBy\": \"Admin User\",\n  \"needsMaintenance\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}", "return"]
+            },
+            "description": "Return equipment that needs maintenance. Equipment status will be set to 'Repairing'."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Assignment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}"]
+            },
+            "description": "Soft delete an assignment. Only allowed for returned or lost assignments."
+          },
+          "response": []
+        }
+      ],
+      "description": "Command operations for managing assignments"
+    },
+    {
+      "name": "Workflows & Scenarios",
+      "item": [
+        {
+          "name": "Complete Assignment Workflow",
+          "item": [
+            {
+              "name": "1. Create Assignment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"assignedToUserId\": \"user123\",\n  \"assignedDate\": \"{{$isoTimestamp}}\",\n  \"notes\": \"Laptop for new employee\",\n  \"assignedBy\": \"HR Manager\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments"]
+                },
+                "description": "Step 1: Create new assignment"
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    pm.environment.set('assignmentId', pm.response.json());",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. View Assignment Details",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "{{assignmentId}}"]
+                },
+                "description": "Step 2: View the created assignment"
+              },
+              "response": []
+            },
+            {
+              "name": "3. Update Assignment Notes",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"assignmentId\": \"{{assignmentId}}\",\n  \"notes\": \"Updated: Employee onboarding completed\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "{{assignmentId}}"]
+                },
+                "description": "Step 3: Update assignment information"
+              },
+              "response": []
+            },
+            {
+              "name": "4. Return Equipment",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"assignmentId\": \"{{assignmentId}}\",\n  \"returnNotes\": \"Employee resigned, equipment returned\",\n  \"returnedBy\": \"HR Manager\",\n  \"needsMaintenance\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/return",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "{{assignmentId}}", "return"]
+                },
+                "description": "Step 4: Return the equipment"
+              },
+              "response": []
+            },
+            {
+              "name": "5. View Returned Assignment",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "{{assignmentId}}"]
+                },
+                "description": "Step 5: Verify assignment status is 'Returned'"
+              },
+              "response": []
+            }
+          ],
+          "description": "Complete assignment lifecycle from creation to return"
+        },
+        {
+          "name": "User Assignment Report",
+          "item": [
+            {
+              "name": "Get User's Active Assignments",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/user/user123?activeOnly=true",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "user", "user123"],
+                  "query": [
+                    {
+                      "key": "activeOnly",
+                      "value": "true"
+                    }
+                  ]
+                },
+                "description": "Get all active equipment assigned to user"
+              },
+              "response": []
+            },
+            {
+              "name": "Get User's Full History",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/assignments/user/user123?activeOnly=false",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "assignments", "user", "user123"],
+                  "query": [
+                    {
+                      "key": "activeOnly",
+                      "value": "false"
+                    }
+                  ]
+                },
+                "description": "Get complete assignment history for user"
+              },
+              "response": []
+            }
+          ],
+          "description": "User-specific assignment queries"
+        }
+      ],
+      "description": "Real-world workflows and usage scenarios"
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "assignmentId",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "user123",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,592 @@
+{
+  "info": {
+    "name": "Maintenance Management API",
+    "description": "Complete API collection for Equipment Maintenance Management Module with full workflow support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "maintenance-management-api",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Maintenances - Query Operations",
+      "item": [
+        {
+          "name": "Get All Maintenance Requests (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances"],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Items per page (default: 10, max: 100)"
+                },
+                {
+                  "key": "equipmentId",
+                  "value": "",
+                  "description": "Filter by equipment ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "technicianId",
+                  "value": "",
+                  "description": "Filter by technician ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: 1=Pending, 2=InProgress, 3=Completed, 4=Cancelled (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieves a paginated list of maintenance requests with optional filters for equipment, technician, and status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Maintenance Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "pending"]
+            },
+            "description": "Retrieves all pending maintenance requests ordered by request date (oldest first)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Maintenance Request by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}"]
+            },
+            "description": "Retrieves detailed information about a specific maintenance request"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Maintenance Requests by Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/equipment/{{equipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "equipment", "{{equipmentId}}"]
+            },
+            "description": "Retrieves maintenance history for a specific equipment"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technician Work Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/technician/{{technicianId}}?activeOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "technician", "{{technicianId}}"],
+              "query": [
+                {
+                  "key": "activeOnly",
+                  "value": "true",
+                  "description": "Show only active requests (Pending + InProgress)"
+                }
+              ]
+            },
+            "description": "Retrieves all maintenance requests assigned to a specific technician"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Maintenances - Command Operations",
+      "item": [
+        {
+          "name": "Create Maintenance Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"requesterId\": \"{{userId}}\",\n  \"description\": \"Monitor flickering - requires screen replacement\",\n  \"notes\": \"Customer reports intermittent screen issues\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances"]
+            },
+            "description": "Creates a new maintenance request for equipment repair. Status will be set to Pending."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Maintenance Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"description\": \"Monitor flickering - screen replacement confirmed\",\n  \"notes\": \"Updated description after initial inspection\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}"]
+            },
+            "description": "Updates basic information of a maintenance request (only Pending and InProgress requests can be updated)"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Technician to Maintenance",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"assignmentNotes\": \"Assigned to senior technician with display expertise\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}", "assign"]
+            },
+            "description": "Assigns a technician to a pending maintenance request. Appends [ASSIGNED] note to maintenance history."
+          },
+          "response": []
+        },
+        {
+          "name": "Start Maintenance Work",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"startNotes\": \"Beginning screen replacement procedure\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}", "start"]
+            },
+            "description": "Starts maintenance work. Only assigned technician can start. Sets status to InProgress and equipment to Repairing."
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Maintenance Work",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"cost\": 250.50,\n  \"completionNotes\": \"Screen replaced successfully. All functions tested.\",\n  \"stillNeedsMaintenance\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}", "complete"]
+            },
+            "description": "Completes maintenance work. Requires cost > 0. Equipment status set to New if fully fixed, or Repairing if still needs work."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Maintenance Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"cancellationReason\": \"Equipment no longer in use - sent for disposal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenances", "{{maintenanceId}}", "cancel"]
+            },
+            "description": "Cancels a maintenance request. Cannot cancel completed requests. Reverts equipment status to New."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Workflows & Scenarios",
+      "item": [
+        {
+          "name": "Complete Maintenance Lifecycle",
+          "item": [
+            {
+              "name": "1. Create Maintenance Request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 201\", function () {",
+                      "    pm.expect([200, 201]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.environment.set(\"maintenanceId\", jsonData.id || jsonData);",
+                      "    pm.test(\"Maintenance ID captured\", function () {",
+                      "        pm.expect(pm.environment.get(\"maintenanceId\")).to.not.be.undefined;",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"requesterId\": \"{{userId}}\",\n  \"description\": \"Laptop keyboard malfunction - multiple keys not responding\",\n  \"notes\": \"Reported by user on 2024-01-15. Urgent repair needed.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances"]
+                },
+                "description": "STEP 1: Create new maintenance request"
+              },
+              "response": []
+            },
+            {
+              "name": "2. Assign Technician",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 204\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "pm.test(\"Technician assigned successfully\", function () {",
+                      "    pm.expect(pm.response).to.not.be.error;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"assignmentNotes\": \"Assigned to IT hardware specialist\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/assign",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances", "{{maintenanceId}}", "assign"]
+                },
+                "description": "STEP 2: Assign technician to maintenance request"
+              },
+              "response": []
+            },
+            {
+              "name": "3. Start Maintenance",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 204\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "pm.test(\"Maintenance started\", function () {",
+                      "    pm.expect(pm.response).to.not.be.error;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"startNotes\": \"Beginning keyboard replacement. Ordered new keyboard assembly.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/start",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances", "{{maintenanceId}}", "start"]
+                },
+                "description": "STEP 3: Technician starts the maintenance work"
+              },
+              "response": []
+            },
+            {
+              "name": "4. Complete Maintenance",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 or 204\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});",
+                      "",
+                      "pm.test(\"Maintenance completed\", function () {",
+                      "    pm.expect(pm.response).to.not.be.error;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"maintenanceRequestId\": \"{{maintenanceId}}\",\n  \"technicianId\": \"{{technicianId}}\",\n  \"cost\": 180.00,\n  \"completionNotes\": \"Keyboard replaced. All keys tested and working. Laptop cleaned and inspected.\",\n  \"stillNeedsMaintenance\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}/complete",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances", "{{maintenanceId}}", "complete"]
+                },
+                "description": "STEP 4: Complete the maintenance work with cost and notes"
+              },
+              "response": []
+            },
+            {
+              "name": "5. Verify Completion",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Maintenance status is Completed\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.status).to.eql(3);",
+                      "});",
+                      "",
+                      "pm.test(\"Cost is recorded\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.cost).to.be.above(0);",
+                      "});",
+                      "",
+                      "pm.test(\"End date is set\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.endDate).to.not.be.null;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances/{{maintenanceId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances", "{{maintenanceId}}"]
+                },
+                "description": "STEP 5: Verify maintenance is completed correctly"
+              },
+              "response": []
+            }
+          ],
+          "description": "Complete workflow from creating a maintenance request to completion"
+        },
+        {
+          "name": "Emergency Cancellation Scenario",
+          "item": [
+            {
+              "name": "1. Create Urgent Maintenance",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.environment.set(\"cancelMaintenanceId\", jsonData.id || jsonData);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"requesterId\": \"{{userId}}\",\n  \"description\": \"Server cooling fan making loud noise\",\n  \"notes\": \"URGENT - Production server overheating\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Cancel Before Assignment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Cancellation successful\", function () {",
+                      "    pm.expect([200, 204]).to.include(pm.response.code);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"maintenanceRequestId\": \"{{cancelMaintenanceId}}\",\n  \"cancellationReason\": \"Replaced entire server unit - maintenance no longer needed\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/maintenances/{{cancelMaintenanceId}}/cancel",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "maintenances", "{{cancelMaintenanceId}}", "cancel"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Scenario for cancelling maintenance requests before or during work"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "maintenanceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equipmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "technicianId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cancelMaintenanceId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

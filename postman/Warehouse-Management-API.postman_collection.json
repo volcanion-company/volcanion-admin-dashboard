@@ -1,0 +1,525 @@
+{
+	"info": {
+		"_postman_id": "warehouse-mgmt-2024",
+		"name": "Warehouse Management API",
+		"description": "Complete API collection for Warehouse Management module in Equipment Management System.\n\n## Features:\n- ✅ Warehouse Items CRUD (Create, Read, Update, Delete)\n- ✅ Warehouse Transactions (Import, Export, Adjustment)\n- ✅ Low Stock Alerts\n- ✅ Transaction History\n\n## Base URL:\n- Development: `http://localhost:5000`\n- Docker: `http://localhost:8080`\n- Production: `https://your-production-url.com`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Warehouse Items",
+			"item": [
+				{
+					"name": "Get All Warehouse Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items?pageNumber=1&pageSize=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "pageSize",
+									"value": "10",
+									"description": "Items per page (default: 10, max: 100)"
+								},
+								{
+									"key": "equipmentType",
+									"value": "Laptop",
+									"description": "Filter by equipment type (optional)",
+									"disabled": true
+								},
+								{
+									"key": "lowStockOnly",
+									"value": "true",
+									"description": "Show only low stock items (optional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieves a paginated list of all warehouse items with optional filters:\n- **equipmentType**: Filter by equipment type (partial match)\n- **lowStockOnly**: Show only items with quantity <= minThreshold\n\n### Response:\n```json\n{\n  \"items\": [...],\n  \"totalCount\": 50,\n  \"pageNumber\": 1,\n  \"pageSize\": 10\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Warehouse Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/{{warehouse_item_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"{{warehouse_item_id}}"
+							]
+						},
+						"description": "Retrieves detailed information about a specific warehouse item by its unique ID.\n\n### Response:\n```json\n{\n  \"id\": \"guid\",\n  \"equipmentType\": \"Laptop\",\n  \"quantity\": 25,\n  \"minThreshold\": 10,\n  \"notes\": \"Dell Latitude series\",\n  \"createdAt\": \"2024-01-15T00:00:00Z\",\n  \"updatedAt\": \"2024-11-25T00:00:00Z\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Low Stock Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/low-stock",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"low-stock"
+							]
+						},
+						"description": "Retrieves all warehouse items that have stock levels at or below their minimum threshold.\n\nUseful for:\n- 📊 Inventory alerts\n- 🔔 Low stock notifications\n- 📋 Restocking reports\n\n### Response:\n```json\n[\n  {\n    \"id\": \"guid\",\n    \"equipmentType\": \"Mouse\",\n    \"quantity\": 3,\n    \"minThreshold\": 5,\n    \"notes\": \"Need to reorder\"\n  }\n]\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Warehouse Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"equipmentType\": \"Laptop\",\n  \"quantity\": 50,\n  \"minThreshold\": 10,\n  \"notes\": \"Dell Latitude 7420 - Business laptops\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items"
+							]
+						},
+						"description": "Creates a new warehouse item for tracking inventory of a specific equipment type.\n\n### Validation Rules:\n- ✅ **equipmentType**: Required, max 200 characters, must be unique\n- ✅ **quantity**: Must be >= 0\n- ✅ **minThreshold**: Must be >= 0 (warning threshold for low stock)\n- ✅ **notes**: Optional, max 500 characters\n\n### Response:\nReturns the GUID of the newly created warehouse item."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Warehouse Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{warehouse_item_id}}\",\n  \"equipmentType\": \"Laptop\",\n  \"quantity\": 45,\n  \"minThreshold\": 15,\n  \"notes\": \"Dell Latitude 7420 - Business laptops (updated threshold)\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/{{warehouse_item_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"{{warehouse_item_id}}"
+							]
+						},
+						"description": "Updates an existing warehouse item.\n\n### Notes:\n- ID in URL must match ID in body\n- Cannot change to an equipmentType that already exists\n- UpdatedAt is automatically set to current timestamp\n\n### Response:\n- 204 No Content on success\n- 400 Bad Request if ID mismatch\n- 404 Not Found if item doesn't exist"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Warehouse Item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/{{warehouse_item_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"{{warehouse_item_id}}"
+							]
+						},
+						"description": "Deletes a warehouse item (soft delete).\n\n### Behavior:\n- Performs **soft delete** (sets IsDeleted = true)\n- Item is hidden from queries but data is preserved\n- Can be restored by admin if needed\n\n### Response:\n- 204 No Content on success\n- 404 Not Found if item doesn't exist or already deleted"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for managing warehouse items (inventory by equipment type)."
+		},
+		{
+			"name": "Warehouse Transactions",
+			"item": [
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions?pageNumber=1&pageSize=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "20",
+									"description": "Items per page (max: 100)"
+								},
+								{
+									"key": "warehouseItemId",
+									"value": "{{warehouse_item_id}}",
+									"description": "Filter by warehouse item ID (optional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieves a paginated list of all warehouse transactions with optional filtering.\n\n### Use Cases:\n- 📜 Audit trail of all inventory movements\n- 📊 Transaction history reports\n- 🔍 Track who performed what operations\n\n### Response:\n```json\n{\n  \"items\": [\n    {\n      \"id\": \"guid\",\n      \"warehouseItemId\": \"guid\",\n      \"type\": 1,\n      \"quantity\": 10,\n      \"reason\": \"Restocking\",\n      \"performedBy\": \"admin@example.com\",\n      \"transactionDate\": \"2024-12-10T10:00:00Z\"\n    }\n  ],\n  \"totalCount\": 150,\n  \"pageNumber\": 1,\n  \"pageSize\": 20\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transactions by Item",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions?warehouseItemId={{warehouse_item_id}}&pageNumber=1&pageSize=50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "warehouseItemId",
+									"value": "{{warehouse_item_id}}",
+									"description": "Filter transactions for specific warehouse item"
+								},
+								{
+									"key": "pageNumber",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Retrieves transaction history for a specific warehouse item.\n\nUseful for:\n- 📈 Tracking inventory movement for one equipment type\n- 🔎 Investigating discrepancies\n- 📊 Usage pattern analysis"
+					},
+					"response": []
+				},
+				{
+					"name": "Import - Add Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"warehouseItemId\": \"{{warehouse_item_id}}\",\n  \"type\": 1,\n  \"quantity\": 50,\n  \"reason\": \"New purchase from Dell\",\n  \"performedBy\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							]
+						},
+						"description": "**IMPORT Transaction** - Adds items to warehouse inventory.\n\n### Transaction Type:\n- **Type: 1** = Import (nhập kho)\n\n### Behavior:\n- ➕ Increases warehouse quantity by specified amount\n- 📝 Creates audit log entry\n- ⏰ Records transaction timestamp and performer\n\n### Validation:\n- ✅ Warehouse item must exist\n- ✅ Quantity must be > 0\n- ✅ PerformedBy is required\n\n### Response:\nReturns the GUID of the created transaction."
+					},
+					"response": []
+				},
+				{
+					"name": "Export - Remove Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"warehouseItemId\": \"{{warehouse_item_id}}\",\n  \"type\": 2,\n  \"quantity\": 5,\n  \"reason\": \"Assignment to new employees\",\n  \"performedBy\": \"hr.manager@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							]
+						},
+						"description": "**EXPORT Transaction** - Removes items from warehouse inventory.\n\n### Transaction Type:\n- **Type: 2** = Export (xuất kho)\n\n### Behavior:\n- ➖ Decreases warehouse quantity by specified amount\n- ✅ Validates sufficient stock before export\n- 📝 Creates audit log entry\n\n### Validation:\n- ✅ Warehouse item must exist\n- ✅ Quantity must be > 0\n- ✅ Available quantity must be >= requested quantity\n- ✅ PerformedBy is required\n\n### Error Response (Insufficient Stock):\n```json\n{\n  \"errors\": {\n    \"Quantity\": [\n      \"Insufficient quantity in warehouse. Available: 3, Requested: 5\"\n    ]\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Adjustment - Correct Inventory",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"warehouseItemId\": \"{{warehouse_item_id}}\",\n  \"type\": 3,\n  \"quantity\": 42,\n  \"reason\": \"Physical inventory count - correction\",\n  \"performedBy\": \"inventory.manager@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							]
+						},
+						"description": "**ADJUSTMENT Transaction** - Corrects inventory to exact count.\n\n### Transaction Type:\n- **Type: 3** = Adjustment (điều chỉnh)\n\n### Behavior:\n- 🔄 Sets warehouse quantity to the specified amount (not adding/subtracting)\n- 📊 Records the delta in transaction (difference between old and new)\n- 📝 Creates audit log entry with actual change amount\n\n### Use Cases:\n- Physical inventory reconciliation\n- Fixing data entry errors\n- Year-end stock adjustments\n\n### Example:\n- Current quantity: 40\n- Adjustment quantity: 42\n- Result: Quantity = 42, Transaction records delta = +2\n\n### Validation:\n- ✅ Warehouse item must exist\n- ✅ Quantity must be >= 0 (can adjust to zero)\n- ✅ PerformedBy is required\n- ✅ Reason is recommended for audit purposes"
+					},
+					"response": []
+				},
+				{
+					"name": "Auto-Export (Assignment Integration)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"equipmentId\": \"{{equipment_id}}\",\n  \"assignedToUserId\": \"user123\",\n  \"assignedDate\": \"2024-12-12T00:00:00Z\",\n  \"notes\": \"Assignment to new employee\",\n  \"assignedBy\": \"hr.manager@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assignments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assignments"
+							]
+						},
+						"description": "**Automatic Warehouse Integration** - Creating an assignment automatically exports from warehouse.\n\n### How it works:\n1. User creates equipment assignment\n2. System checks warehouse for matching equipment type\n3. If stock available:\n   - ✅ Auto-exports 1 unit\n   - 📝 Creates transaction with reason: \"Auto-export for assignment to [user]\"\n   - ⚙️ PerformedBy = AssignedBy field or \"System\"\n4. If stock insufficient:\n   - ⚠️ Logs warning but allows assignment\n   - (Can enable strict mode to reject assignment)\n\n### Benefits:\n- 🔄 Automatic inventory sync\n- 📊 Complete audit trail\n- ⚡ No manual warehouse transaction needed\n\n### Note:\nThis is a cross-module feature demonstrating integration between Assignments and Warehouses modules."
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction operations for tracking inventory movements (Import, Export, Adjustment)."
+		},
+		{
+			"name": "Sample Workflows",
+			"item": [
+				{
+					"name": "1. Setup - Create Warehouse Items",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"equipmentType\": \"Laptop\",\n  \"quantity\": 0,\n  \"minThreshold\": 10,\n  \"notes\": \"Dell Latitude 7420 - Business laptops\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items"
+							]
+						},
+						"description": "**Step 1**: Create warehouse items for each equipment type you want to track.\n\nStart with quantity = 0, you'll add stock via Import transactions."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Import - Receive New Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"warehouseItemId\": \"{{warehouse_item_id}}\",\n  \"type\": 1,\n  \"quantity\": 50,\n  \"reason\": \"Initial purchase - 50 Dell Latitude laptops\",\n  \"performedBy\": \"procurement@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							]
+						},
+						"description": "**Step 2**: Import stock when receiving new equipment.\n\nThis increases inventory from 0 to 50."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Check Current Stock",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/{{warehouse_item_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"{{warehouse_item_id}}"
+							]
+						},
+						"description": "**Step 3**: Verify current stock levels.\n\nShould show quantity = 50 after import."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Monitor Low Stock",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/items/low-stock",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"items",
+								"low-stock"
+							]
+						},
+						"description": "**Step 4**: Monitor items that need restocking.\n\nReturns items where quantity <= minThreshold."
+					},
+					"response": []
+				},
+				{
+					"name": "5. View Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/warehouses/transactions?warehouseItemId={{warehouse_item_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"warehouses",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "warehouseItemId",
+									"value": "{{warehouse_item_id}}"
+								}
+							]
+						},
+						"description": "**Step 5**: Audit all transactions for a warehouse item.\n\nShows complete history of imports, exports, and adjustments."
+					},
+					"response": []
+				}
+			],
+			"description": "Sample workflow demonstrating typical warehouse management operations from setup to monitoring."
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "warehouse_item_id",
+			"value": "your-warehouse-item-guid-here",
+			"type": "string"
+		},
+		{
+			"key": "equipment_id",
+			"value": "your-equipment-guid-here",
+			"type": "string"
+		}
+	]
+}
